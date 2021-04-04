@@ -4,8 +4,8 @@
 
 #include "libclang-utils/clang-token.h"
 
-namespace cxx
+namespace libclang
 {
 
-} // namespace cxx
+} // namespace libclang
 

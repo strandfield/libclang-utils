@@ -11,29 +11,29 @@
 #include <utility>
 #include <vector>
 
-namespace cxx
+namespace libclang
 {
 
-class LIBCLANGU_API ClangCursor
+class LIBCLANGU_API Cursor
 {
 public:
-  LibClang* libclang;
+  LibClang* api;
   CXCursor cursor;
 
-  ClangCursor(LibClang& lib, CXCursor c)
-    : libclang(&lib), cursor(c)
+  Cursor(LibClang& lib, CXCursor c)
+    : api(&lib), cursor(c)
   {
 
   }
 
-  ClangCursor(const ClangCursor&) = default;
+  Cursor(const Cursor&) = default;
 
-  ~ClangCursor()
+  ~Cursor()
   {
 
   }
 
-  ClangCursor& operator=(const ClangCursor&) = default;
+  Cursor& operator=(const Cursor&) = default;
 
   operator CXCursor() const
   {
@@ -42,85 +42,85 @@ public:
 
   CXCursorKind kind() const
   {
-    return libclang->clang_getCursorKind(this->cursor);
+    return api->clang_getCursorKind(this->cursor);
   }
 
   bool isDeclaration() const
   {
-    return libclang->clang_isDeclaration(kind());
+    return api->clang_isDeclaration(kind());
   }
 
   bool isExpression() const
   {
-    return libclang->clang_isExpression(kind());
+    return api->clang_isExpression(kind());
   }
 
   bool isPreprocessing() const
   {
-    return libclang->clang_isPreprocessing(kind());
+    return api->clang_isPreprocessing(kind());
   }
 
   bool isReference() const
   {
-    return libclang->clang_isReference(kind());
+    return api->clang_isReference(kind());
   }
 
   bool isStatement() const
   {
-    return libclang->clang_isStatement(kind());
+    return api->clang_isStatement(kind());
   }
 
   bool isUnexposed() const
   {
-    return libclang->clang_isUnexposed(kind());
+    return api->clang_isUnexposed(kind());
   }
 
   std::string getSpelling() const
   {
-    CXString str = libclang->clang_getCursorSpelling(this->cursor);
-    std::string result = libclang->clang_getCString(str);
-    libclang->clang_disposeString(str);
+    CXString str = api->clang_getCursorSpelling(this->cursor);
+    std::string result = api->clang_getCString(str);
+    api->clang_disposeString(str);
     return result;
   }
 
   std::string getCursorKindSpelling() const
   {
-    CXString str = libclang->clang_getCursorKindSpelling(kind());
-    std::string result = libclang->clang_getCString(str);
-    libclang->clang_disposeString(str);
+    CXString str = api->clang_getCursorKindSpelling(kind());
+    std::string result = api->clang_getCString(str);
+    api->clang_disposeString(str);
     return result;
   }
 
-  ClangCursor getLexicalParent() const
+  Cursor getLexicalParent() const
   {
-    CXCursor c = libclang->clang_getCursorLexicalParent(this->cursor);
-    return ClangCursor{ *libclang, c };
+    CXCursor c = api->clang_getCursorLexicalParent(this->cursor);
+    return Cursor{ *api, c };
   }
 
-  ClangCursor getSemanticParent() const
+  Cursor getSemanticParent() const
   {
-    CXCursor c = libclang->clang_getCursorSemanticParent(this->cursor);
-    return ClangCursor{ *libclang, c };
+    CXCursor c = api->clang_getCursorSemanticParent(this->cursor);
+    return Cursor{ *api, c };
   }
 
   CXSourceRange getExtent() const
   {
-    return libclang->clang_getCursorExtent(this->cursor);
+    return api->clang_getCursorExtent(this->cursor);
   }
 
   CXType getType() const
   {
-    return libclang->clang_getCursorType(this->cursor);
+    return api->clang_getCursorType(this->cursor);
   }
 
   CX_CXXAccessSpecifier getCXXAccessSpecifier() const
   {
-    return libclang->clang_getCXXAccessSpecifier(this->cursor);
+    return api->clang_getCXXAccessSpecifier(this->cursor);
   }
 
   int getExceptionSpecificationType() const
   {
-    return libclang->clang_getCursorExceptionSpecificationType(this->cursor);
+    return api->clang_getCursorExceptionSpecificationType(this->cursor);
   }
 
   template<typename T>
@@ -135,13 +135,13 @@ public:
   struct VisitorSelector2 : VisitorSelector1 {};
 
   template<typename F>
-  static void visitor_invoker(F&& func, bool& stop_token, const ClangCursor& cursor, VisitorSelector1)
+  static void visitor_invoker(F&& func, bool& stop_token, const Cursor& cursor, VisitorSelector1)
   {
     func(cursor);
   }
 
-  template<typename F, typename = decltype(std::declval<F>()(std::declval<bool&>(), std::declval<const ClangCursor&>()))>
-  static void visitor_invoker(F&& func, bool& stop_token, const ClangCursor& cursor, VisitorSelector2)
+  template<typename F, typename = decltype(std::declval<F>()(std::declval<bool&>(), std::declval<const Cursor&>()))>
+  static void visitor_invoker(F&& func, bool& stop_token, const Cursor& cursor, VisitorSelector2)
   {
     func(stop_token, cursor);
   }
@@ -150,41 +150,41 @@ public:
   static CXChildVisitResult generic_visit_callback(CXCursor c, CXCursor p, CXClientData client_data)
   {
     VisitorData<T>& data = *static_cast<VisitorData<T>*>(client_data);
-    visitor_invoker(data.functor, data.should_break, ClangCursor{ data.libclang, c }, VisitorSelector2{});
+    visitor_invoker(data.functor, data.should_break, Cursor{ data.libclang, c }, VisitorSelector2{});
     return data.should_break ? CXChildVisit_Break : CXChildVisit_Continue;
   }
 
   template<typename Func>
   void visitChildren(Func&& f) const
   {
-    VisitorData<Func> data{ *libclang, f, false };
-    libclang->clang_visitChildren(this->cursor, generic_visit_callback<Func>, &data);
+    VisitorData<Func> data{ *api, f, false };
+    api->clang_visitChildren(this->cursor, generic_visit_callback<Func>, &data);
   }
 
   size_t childCount() const;
-  ClangCursor childAt(size_t index) const;
-  std::vector<ClangCursor> children() const;
+  Cursor childAt(size_t index) const;
+  std::vector<Cursor> children() const;
 };
 
-inline bool operator==(const ClangCursor& lhs, const ClangCursor& rhs)
+inline bool operator==(const Cursor& lhs, const Cursor& rhs)
 {
-  return lhs.libclang->clang_equalCursors(lhs.cursor, rhs.cursor);
+  return lhs.api->clang_equalCursors(lhs.cursor, rhs.cursor);
 }
 
-inline bool operator!=(const ClangCursor& lhs, const ClangCursor& rhs)
+inline bool operator!=(const Cursor& lhs, const Cursor& rhs)
 {
   return !(lhs == rhs);
 }
 
-} // namespace cxx
+} // namespace libclang
 
 namespace std
 {
-template<> struct hash<cxx::ClangCursor>
+template<> struct hash<libclang::Cursor>
 {
-  std::size_t operator()(const cxx::ClangCursor& c) const noexcept
+  std::size_t operator()(const libclang::Cursor& c) const noexcept
   {
-    return c.libclang != nullptr ? c.libclang->clang_hashCursor(c.cursor) : 0;
+    return c.api != nullptr ? c.api->clang_hashCursor(c.cursor) : 0;
   }
 };
 }

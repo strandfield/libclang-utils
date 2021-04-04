@@ -22,11 +22,11 @@ static bool findLibclangParser()
 {
   try
   {
-    cxx::LibClang clang_parser;
+    libclang::LibClang clang_parser;
     std::cout << "libclang parser available, version = " << clang_parser.printableVersion() << std::endl;
     return true;
   }
-  catch (const cxx::LibClangError& err)
+  catch (const libclang::LibClangError& err)
   {
     std::cout << "libclang error: " << err.what() << std::endl;
     std::cout << "libclang parser tests will be skipped..." << std::endl;
@@ -49,8 +49,8 @@ TEST_CASE("The parser is able to parse a function", "[libclang]")
   write_file("test.cpp",
     "const int foo(int& i, int j = 0) { return i+j; }");
 
-  cxx::LibClang libclang;
-  cxx::ClangIndex index = libclang.createIndex();
+  libclang::LibClang libclang;
+  libclang::Index index = libclang.createIndex();
 
   REQUIRE_NOTHROW(index.parseTranslationUnit("test.cpp", {}));
 }
@@ -63,8 +63,8 @@ TEST_CASE("The parser is able to parse a simple function body", "[libclang]")
   write_file("test.cpp",
     "void foo(int n) noexcept {  if(n > 0){} }");
 
-  cxx::LibClang libclang;
-  cxx::ClangIndex index = libclang.createIndex();
+  libclang::LibClang libclang;
+  libclang::Index index = libclang.createIndex();
 
-  cxx::ClangTranslationUnit tu = index.parseTranslationUnit("test.cpp", {});
+  libclang::TranslationUnit tu = index.parseTranslationUnit("test.cpp", {});
 }

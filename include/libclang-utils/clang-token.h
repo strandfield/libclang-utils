@@ -9,30 +9,30 @@
 
 #include <functional>
 
-namespace cxx
+namespace libclang
 {
 
-class LIBCLANGU_API ClangToken
+class LIBCLANGU_API Token
 {
 public:
-  LibClang* libclang;
+  LibClang* api;
   CXTranslationUnit translation_unit;
   CXToken token;
 
-  ClangToken(LibClang& lib, CXTranslationUnit tu, CXToken tok)
-    : libclang(&lib), translation_unit(tu), token(tok)
+  Token(LibClang& lib, CXTranslationUnit tu, CXToken tok)
+    : api(&lib), translation_unit(tu), token(tok)
   {
 
   }
 
-  ClangToken(const ClangToken&) = default;
+  Token(const Token&) = default;
 
-  ~ClangToken()
+  ~Token()
   {
 
   }
 
-  ClangToken& operator=(const ClangToken&) = default;
+  Token& operator=(const Token&) = default;
 
   operator const CXToken&() const
   {
@@ -41,22 +41,22 @@ public:
 
   std::string getSpelling() const
   {
-    CXString str = libclang->clang_getTokenSpelling(this->translation_unit, this->token);
-    std::string result = libclang->clang_getCString(str);
-    libclang->clang_disposeString(str);
+    CXString str = api->clang_getTokenSpelling(this->translation_unit, this->token);
+    std::string result = api->clang_getCString(str);
+    api->clang_disposeString(str);
     return result;
   }
 
   CXSourceRange getExtent() const
   {
-    return libclang->clang_getTokenExtent(this->translation_unit, this->token);
+    return api->clang_getTokenExtent(this->translation_unit, this->token);
   }
 };
 
-class LIBCLANGU_API ClangTokenSet
+class LIBCLANGU_API TokenSet
 {
 public:
-  LibClang* libclang;
+  LibClang* api;
   CXTranslationUnit translation_unit;
 
 protected:
@@ -64,46 +64,46 @@ protected:
   size_t m_size;
 
 public:
-  ClangTokenSet()
-    : libclang(nullptr), translation_unit(nullptr), tokens(nullptr), m_size(0)
+  TokenSet()
+    : api(nullptr), translation_unit(nullptr), tokens(nullptr), m_size(0)
   {
 
   }
 
-  ClangTokenSet(LibClang& lib, CXTranslationUnit tu, CXToken* toks, size_t size)
-    : libclang(&lib), translation_unit(tu), tokens(toks), m_size(size)
+  TokenSet(LibClang& lib, CXTranslationUnit tu, CXToken* toks, size_t size)
+    : api(&lib), translation_unit(tu), tokens(toks), m_size(size)
   {
 
   }
 
-  ClangTokenSet(const ClangTokenSet&) = delete;
+  TokenSet(const TokenSet&) = delete;
 
-  ClangTokenSet(ClangTokenSet&& other) noexcept
-    : libclang(other.libclang), translation_unit(other.translation_unit), tokens(other.tokens), m_size(other.m_size)
+  TokenSet(TokenSet&& other) noexcept
+    : api(other.api), translation_unit(other.translation_unit), tokens(other.tokens), m_size(other.m_size)
   {
-    other.libclang = nullptr;
+    other.api = nullptr;
     other.tokens = nullptr;
     other.m_size = 0;
   }
 
-  ~ClangTokenSet()
+  ~TokenSet()
   {
-    if (libclang && m_size)
+    if (api && m_size)
     {
-      libclang->clang_disposeTokens(translation_unit, tokens, static_cast<unsigned>(m_size));
+      api->clang_disposeTokens(translation_unit, tokens, static_cast<unsigned>(m_size));
     }
   }
 
-  ClangTokenSet& operator=(const ClangTokenSet&) = delete;
+  TokenSet& operator=(const TokenSet&) = delete;
 
-  ClangTokenSet& operator=(ClangTokenSet&& other) noexcept
+  TokenSet& operator=(TokenSet&& other) noexcept
   {
 
-    libclang = other.libclang;
+    api = other.api;
     tokens = other.tokens;
     m_size = other.m_size;
 
-    other.libclang = nullptr;
+    other.api = nullptr;
     other.tokens = nullptr;
     other.m_size = 0;
 
@@ -115,12 +115,12 @@ public:
     return m_size;
   }
 
-  ClangToken at(size_t i) const
+  Token at(size_t i) const
   {
-    return ClangToken{ *libclang, translation_unit, this->tokens[i] };
+    return Token{ *api, translation_unit, this->tokens[i] };
   }
 };
 
-} // namespace cxx
+} // namespace libclang
 
 #endif // LIBCLANGUTILS_CLANG_TOKEN_H

@@ -17,10 +17,10 @@ namespace dynlib
 class Library;  
 } // namespace dynlib
 
-namespace cxx
+namespace libclang
 {
 
-class ClangIndex;
+class Index;
 
 class LibClangError : public std::runtime_error
 {
@@ -31,7 +31,7 @@ public:
 class LIBCLANGU_API LibClang
 {
 public:
-  std::unique_ptr<dynlib::Library> libclang;
+  std::unique_ptr<dynlib::Library> lib;
 
 private:
   std::string m_printable_version;
@@ -338,7 +338,7 @@ public:
 
 public:
 
-  ClangIndex createIndex();
+  Index createIndex();
 
   /* libclang helpers */
   
@@ -358,6 +358,6 @@ public:
   const std::string& printableVersion() const;
 };
 
-} // namespace cxx
+} // namespace libclang
 
 #endif // LIBCLANGUTILS_LIBCLANG_H

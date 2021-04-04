@@ -9,43 +9,43 @@
 
 #include <set>
 
-namespace cxx
+namespace libclang
 {
 
-class ClangTranslationUnit;
+class TranslationUnit;
 
-class LIBCLANGU_API ClangIndex
+class LIBCLANGU_API Index
 {
 public:
-  LibClang& libclang;
+  LibClang& api;
   CXIndex index;
 
-  explicit ClangIndex(LibClang& lib)
-    : libclang(lib)
+  explicit Index(LibClang& lib)
+    : api(lib)
   {
-    index = libclang.clang_createIndex(0, 0);
+    index = api.clang_createIndex(0, 0);
   }
 
-  ClangIndex(const ClangIndex&) = delete;
+  Index(const Index&) = delete;
   
-  ClangIndex(ClangIndex&& other) noexcept
-    : libclang(other.libclang),
+  Index(Index&& other) noexcept
+    : api(other.api),
       index(other.index)
   {
     other.index = nullptr;
   }
 
-  ~ClangIndex()
+  ~Index()
   {
     if (this->index)
     {
-      libclang.clang_disposeIndex(this->index);
+      api.clang_disposeIndex(this->index);
     }
   }
 
-  ClangTranslationUnit parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options = 0);
+  TranslationUnit parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options = 0);
 };
 
-} // namespace cxx
+} // namespace libclang
 
 #endif // LIBCLANGUTILS_CLANG_INDEX_H

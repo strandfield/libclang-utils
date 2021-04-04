@@ -7,21 +7,21 @@
 #include "libclang-utils/clang-cursor.h"
 #include "libclang-utils/clang-token.h"
 
-namespace cxx
+namespace libclang
 {
 
-ClangTranslationUnit::~ClangTranslationUnit()
+TranslationUnit::~TranslationUnit()
 {
   if(translation_unit)
-    libclang->clang_disposeTranslationUnit(translation_unit);
+    api->clang_disposeTranslationUnit(translation_unit);
 }
 
-ClangTranslationUnit& ClangTranslationUnit::operator=(ClangTranslationUnit&& other)
+TranslationUnit& TranslationUnit::operator=(TranslationUnit&& other)
 {
-  this->libclang = other.libclang;
+  this->api = other.api;
 
   if (this->translation_unit)
-    libclang->clang_disposeTranslationUnit(this->translation_unit);
+    api->clang_disposeTranslationUnit(this->translation_unit);
 
   this->translation_unit = other.translation_unit;
   other.translation_unit = nullptr;
@@ -29,19 +29,19 @@ ClangTranslationUnit& ClangTranslationUnit::operator=(ClangTranslationUnit&& oth
   return *(this);
 }
 
-ClangCursor ClangTranslationUnit::getCursor() const
+Cursor TranslationUnit::getCursor() const
 {
-  CXCursor c = libclang->clang_getTranslationUnitCursor(this->translation_unit);
-  return ClangCursor{ *libclang, c };
+  CXCursor c = api->clang_getTranslationUnitCursor(this->translation_unit);
+  return Cursor{ *api, c };
 }
 
-ClangTokenSet ClangTranslationUnit::tokenize(CXSourceRange range) const
+TokenSet TranslationUnit::tokenize(CXSourceRange range) const
 {
   CXToken* tokens = nullptr;
   unsigned int size = 0;
-  libclang->clang_tokenize(translation_unit, range, &tokens, &size);
-  return ClangTokenSet{ *libclang, translation_unit, tokens, size };
+  api->clang_tokenize(translation_unit, range, &tokens, &size);
+  return TokenSet{ *api, translation_unit, tokens, size };
 }
 
-} // namespace cxx
+} // namespace libclang
 

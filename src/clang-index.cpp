@@ -8,10 +8,10 @@
 
 #include <vector>
 
-namespace cxx
+namespace libclang
 {
 
-ClangTranslationUnit ClangIndex::parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options)
+TranslationUnit Index::parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options)
 {
   const char* command_line_args[128] = { nullptr };
   std::vector<std::string> argv{ "-x", "c++", "-Xclang", "-ast-dump", "-fsyntax-only" };
@@ -25,13 +25,13 @@ ClangTranslationUnit ClangIndex::parseTranslationUnit(const std::string& file, c
 
   CXTranslationUnit tu = nullptr;
 
-  CXErrorCode error = libclang.clang_parseTranslationUnit2(this->index, file.data(), command_line_args, static_cast<int>(argv.size()), nullptr, 0, options, &tu);
+  CXErrorCode error = api.clang_parseTranslationUnit2(this->index, file.data(), command_line_args, static_cast<int>(argv.size()), nullptr, 0, options, &tu);
 
   if (error)
     throw std::runtime_error{ "Could not parse translation unit" };
 
-  return ClangTranslationUnit{ libclang, tu };
+  return TranslationUnit{ api, tu };
 }
 
-} // namespace cxx
+} // namespace libclang
 

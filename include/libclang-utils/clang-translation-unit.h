@@ -7,50 +7,50 @@
 
 #include "libclang-utils/libclang.h"
 
-namespace cxx
+namespace libclang
 {
 
-class ClangCursor;
-class ClangTokenSet;
+class Cursor;
+class TokenSet;
 
-class LIBCLANGU_API ClangTranslationUnit
+class LIBCLANGU_API TranslationUnit
 {
 public:
-  LibClang* libclang = nullptr;
+  LibClang* api = nullptr;
   CXTranslationUnit translation_unit = nullptr;
 
-  ClangTranslationUnit() = default;
+  TranslationUnit() = default;
 
-  ClangTranslationUnit(LibClang& lib, CXTranslationUnit tu)
-    : libclang(&lib), translation_unit(tu)
+  TranslationUnit(LibClang& lib, CXTranslationUnit tu)
+    : api(&lib), translation_unit(tu)
   {
 
   }
 
-  ClangTranslationUnit(const ClangTranslationUnit&) = delete;
+  TranslationUnit(const TranslationUnit&) = delete;
 
-  ClangTranslationUnit(ClangTranslationUnit&& other) noexcept
-    : libclang(other.libclang), translation_unit(other.translation_unit)
+  TranslationUnit(TranslationUnit&& other) noexcept
+    : api(other.api), translation_unit(other.translation_unit)
   {
     other.translation_unit = nullptr;
   }
 
-  ~ClangTranslationUnit();
+  ~TranslationUnit();
 
-  ClangTranslationUnit& operator=(const ClangTranslationUnit&) = delete;
+  TranslationUnit& operator=(const TranslationUnit&) = delete;
 
-  ClangTranslationUnit& operator=(ClangTranslationUnit&& other);
+  TranslationUnit& operator=(TranslationUnit&& other);
 
   operator CXTranslationUnit() const
   {
     return translation_unit;
   }
 
-  ClangCursor getCursor() const;
+  Cursor getCursor() const;
 
-  ClangTokenSet tokenize(CXSourceRange range) const;
+  TokenSet tokenize(CXSourceRange range) const;
 };
 
-} // namespace cxx
+} // namespace libclang
 
 #endif // LIBCLANGUTILS_CLANG_TRANSLATION_UNIT_H
