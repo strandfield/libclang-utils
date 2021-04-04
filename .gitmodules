@@ -1,0 +1,3 @@
+[submodule "dependencies/dynlib"]
+	path = dependencies/dynlib
+	url = https://github.com/bandicode/dynlib.git
