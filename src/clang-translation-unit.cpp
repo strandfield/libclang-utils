@@ -18,11 +18,10 @@ TranslationUnit::~TranslationUnit()
 
 TranslationUnit& TranslationUnit::operator=(TranslationUnit&& other)
 {
+  if (this->api && this->translation_unit)
+    this->api->clang_disposeTranslationUnit(this->translation_unit);
+
   this->api = other.api;
-
-  if (this->translation_unit)
-    api->clang_disposeTranslationUnit(this->translation_unit);
-
   this->translation_unit = other.translation_unit;
   other.translation_unit = nullptr;
 
