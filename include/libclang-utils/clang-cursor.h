@@ -113,6 +113,16 @@ public:
     return api->clang_getCursorType(this->cursor);
   }
 
+  int getNumArguments() const
+  {
+    return api->clang_Cursor_getNumArguments(this->cursor);
+  }
+
+  Cursor getArgument(int index) const
+  {
+    return Cursor(*api, api->clang_Cursor_getArgument(this->cursor, index));
+  }
+
   CX_CXXAccessSpecifier getCXXAccessSpecifier() const
   {
     return api->clang_getCXXAccessSpecifier(this->cursor);
