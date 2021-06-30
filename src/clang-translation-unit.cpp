@@ -5,10 +5,19 @@
 #include "libclang-utils/clang-translation-unit.h"
 
 #include "libclang-utils/clang-cursor.h"
+#include "libclang-utils/clang-file.h"
 #include "libclang-utils/clang-token.h"
+
+/*!
+ * \namespace libclang
+ */
 
 namespace libclang
 {
+
+/*!
+ * \class TranslationUnit
+ */
 
 TranslationUnit::~TranslationUnit()
 {
@@ -41,6 +50,30 @@ TokenSet TranslationUnit::tokenize(CXSourceRange range) const
   api->clang_tokenize(translation_unit, range, &tokens, &size);
   return TokenSet{ *api, translation_unit, tokens, size };
 }
+
+/*!
+ * \fn File getFile(const char* path) const
+ */
+File TranslationUnit::getFile(const char* path) const
+{
+  return File(*api, api->clang_getFile(*this, path));
+}
+
+/*!
+ * \fn File getFile(const std::string& path) const
+ */
+File TranslationUnit::getFile(const std::string& path) const
+{
+  return File(*api, api->clang_getFile(*this, path.c_str()));
+}
+
+/*!
+ * \endclass
+ */
+
+ /*!
+  * \endnamespace
+  */
 
 } // namespace libclang
 

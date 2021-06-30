@@ -6,13 +6,23 @@
 #define LIBCLANGUTILS_CLANG_CURSOR_H
 
 #include "libclang-utils/libclang.h"
+#include "libclang-utils/clang-source-location.h"
+#include "libclang-utils/clang-type.h"
 
 #include <functional>
 #include <utility>
 #include <vector>
 
+/*!
+ * \namespace libclang
+ */
+
 namespace libclang
 {
+
+/*!
+ * \class SourceLocation
+ */
 
 class LIBCLANGU_API Cursor
 {
@@ -108,9 +118,9 @@ public:
     return api->clang_getCursorExtent(this->cursor);
   }
 
-  CXType getType() const
+  Type getType() const
   {
-    return api->clang_getCursorType(this->cursor);
+    return Type(*api, api->clang_getCursorType(this->cursor));
   }
 
   int getNumArguments() const
@@ -132,6 +142,19 @@ public:
   {
     return api->clang_getCursorExceptionSpecificationType(this->cursor);
   }
+
+  bool EnumDecl_isScoped() const
+  {
+    return api->clang_EnumDecl_isScoped(this->cursor);
+  }
+
+  SourceLocation getLocation() const;
+
+  bool isConstructor() const;
+  bool isDestructor() const;
+
+  bool CXXMethod_isConst() const;
+  bool CXXMethod_isStatic() const;
 
   template<typename T>
   struct VisitorData
@@ -176,6 +199,54 @@ public:
   std::vector<Cursor> children() const;
 };
 
+/*!
+ * \fn SourceLocation getLocation() const
+ */
+inline SourceLocation Cursor::getLocation() const
+{
+  return SourceLocation(*api, api->clang_getCursorLocation(cursor));
+}
+
+/*!
+ * \fn bool isConstructor() const
+ * \brief convenience function that returns whether this cursor is a constructor
+ * 
+ * This checks the cursor kind against CXCursor_Constructor.
+ */
+inline bool Cursor::isConstructor() const
+{
+  return kind() == CXCursor_Constructor;
+}
+
+/*!
+ * \fn bool isDestructor() const
+ * \brief convenience function that returns whether this cursor is a destructor
+ * 
+ * This checks the cursor kind against CXCursor_Destructor.
+ */
+inline bool Cursor::isDestructor() const
+{
+  return kind() == CXCursor_Destructor;
+}
+
+/*!
+ * \fn bool CXXMethod_isConst() const
+ * \brief returns whether the cursor is a const method
+ */
+inline bool Cursor::CXXMethod_isConst() const
+{
+  return api->clang_CXXMethod_isConst(cursor);
+}
+
+/*!
+ * \fn bool CXXMethod_isStatic() const
+ * \brief returns whether the cursor is a static method
+ */
+inline bool Cursor::CXXMethod_isStatic() const
+{
+  return api->clang_CXXMethod_isStatic(cursor);
+}
+
 inline bool operator==(const Cursor& lhs, const Cursor& rhs)
 {
   return lhs.api->clang_equalCursors(lhs.cursor, rhs.cursor);
@@ -185,6 +256,14 @@ inline bool operator!=(const Cursor& lhs, const Cursor& rhs)
 {
   return !(lhs == rhs);
 }
+
+/*!
+ * \endclass
+ */
+
+/*!
+ * \endnamespace
+ */
 
 } // namespace libclang
 

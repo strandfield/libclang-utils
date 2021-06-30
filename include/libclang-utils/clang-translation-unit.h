@@ -7,11 +7,21 @@
 
 #include "libclang-utils/libclang.h"
 
+/*!
+ * \namespace libclang
+ */
+
 namespace libclang
 {
 
 class Cursor;
 class TokenSet;
+class File;
+
+/*!
+ * \class TranslationUnit
+ * \brief represents a C++ translation unit
+ */
 
 class LIBCLANGU_API TranslationUnit
 {
@@ -49,7 +59,18 @@ public:
   Cursor getCursor() const;
 
   TokenSet tokenize(CXSourceRange range) const;
+
+  File getFile(const char* path) const;
+  File getFile(const std::string& path) const;
 };
+
+/*!
+ * \endclass
+ */
+
+ /*!
+  * \endnamespace
+  */
 
 } // namespace libclang
 
