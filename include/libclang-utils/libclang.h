@@ -31,7 +31,7 @@ public:
 class LIBCLANGU_API LibClang
 {
 public:
-  std::unique_ptr<dynlib::Library> lib;
+  std::shared_ptr<dynlib::Library> lib;
 
 private:
   std::string m_printable_version;
@@ -352,10 +352,13 @@ public:
 
 public:
   LibClang();
+  LibClang(const LibClang&) = default;
   ~LibClang();
 
   CXVersion version() const;
   const std::string& printableVersion() const;
+
+  LibClang& operator=(const LibClang&) = default;
 };
 
 } // namespace libclang
