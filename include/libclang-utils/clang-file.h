@@ -49,8 +49,9 @@ public:
 
   File(LibClang& lib, CXFile file);
 
-  operator CXFile() const;
+  std::string getFileName() const;
 
+  operator CXFile() const;
 };
 
 /*!
@@ -60,6 +61,15 @@ inline File::File(LibClang& lib, CXFile file)
   : api(&lib), data(file)
 {
 
+}
+
+/*!
+ * \fn std::string getFileName() const
+ * \brief returns the file's name
+ */
+inline std::string File::getFileName() const
+{
+  return api->toStdString(api->clang_getFileName(*this));
 }
 
 /*!

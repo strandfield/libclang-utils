@@ -6,6 +6,7 @@
 #define LIBCLANGUTILS_CLANG_TOKEN_H
 
 #include "libclang-utils/libclang.h"
+#include "libclang-utils/clang-source-range.h"
 
 #include <functional>
 
@@ -47,9 +48,9 @@ public:
     return result;
   }
 
-  CXSourceRange getExtent() const
+  SourceRange getExtent() const
   {
-    return api->clang_getTokenExtent(this->translation_unit, this->token);
+    return SourceRange(*api, api->clang_getTokenExtent(this->translation_unit, this->token));
   }
 };
 

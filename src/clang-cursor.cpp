@@ -4,9 +4,21 @@
 
 #include "libclang-utils/clang-cursor.h"
 
+/*!
+ * \namespace libclang
+ */
+
 namespace libclang
 {
 
+/*!
+ * \class Cursor
+ */
+
+/*!
+ * \fn size_t childCount() const
+ * \brief returns the number of children of this cursor
+ */
 size_t Cursor::childCount() const
 {
   size_t counter = 0;
@@ -18,6 +30,10 @@ size_t Cursor::childCount() const
   return counter;
 }
 
+/*!
+ * \fn Cursor childAt(size_t index) const
+ * \brief access a child by index
+ */
 Cursor Cursor::childAt(size_t index) const
 {
   Cursor result{ *api, this->cursor };
@@ -34,6 +50,10 @@ Cursor Cursor::childAt(size_t index) const
   return result;
 }
 
+/*!
+ * \fn std::vector<Cursor> children() const
+ * \brief returns the cursor's children
+ */
 std::vector<Cursor> Cursor::children() const
 {
   std::vector<Cursor> result;
@@ -45,5 +65,12 @@ std::vector<Cursor> Cursor::children() const
   return result;
 }
 
-} // namespace libclang
+/*!
+ * \endclass
+ */
 
+ /*!
+  * \endnamespace
+  */
+
+} // namespace libclang

@@ -49,8 +49,14 @@ public:
 
   Type(LibClang& lib, CXType type);
 
+  CXTypeKind kind() const;
+
   std::string getSpelling() const;
   Type getResultType() const;
+  Type getPointeeType() const;
+
+  bool isConstQualified() const;
+  bool isVolatileQualified() const;
 
   operator CXType() const;
 
@@ -63,6 +69,15 @@ inline Type::Type(LibClang& lib, CXType type)
   : api(&lib), data(type)
 {
 
+}
+
+/*!
+ * \fn CXTypeKind kind() const
+ * \brief returns the type's kind
+ */
+inline CXTypeKind Type::kind() const
+{
+  return data.kind;
 }
 
 /*!
@@ -81,6 +96,33 @@ inline std::string Type::getSpelling() const
 inline Type Type::getResultType() const
 {
   return Type(*api, api->clang_getResultType(data));
+}
+
+/*!
+ * \fn Type getPointeeType() const
+ * \brief returns the type pointed to
+ */
+inline Type Type::getPointeeType() const
+{
+  return Type(*api, api->clang_getPointeeType(data));
+}
+
+/*!
+ * \fn bool isConstQualified() const
+ * \brief returns whether the type is const qualified
+ */
+inline bool Type::isConstQualified() const
+{
+  return api->clang_isConstQualifiedType(*this);
+}
+
+/*!
+ * \fn bool isVolatileQualified() const
+ * \brief returns whether the type is volatile qualified
+ */
+inline bool Type::isVolatileQualified() const
+{
+  return api->clang_isVolatileQualifiedType(*this);
 }
 
 /*!

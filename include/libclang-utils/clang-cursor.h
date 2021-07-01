@@ -7,6 +7,7 @@
 
 #include "libclang-utils/libclang.h"
 #include "libclang-utils/clang-source-location.h"
+#include "libclang-utils/clang-source-range.h"
 #include "libclang-utils/clang-type.h"
 
 #include <functional>
@@ -21,7 +22,7 @@ namespace libclang
 {
 
 /*!
- * \class SourceLocation
+ * \class Cursor
  */
 
 class LIBCLANGU_API Cursor
@@ -101,22 +102,8 @@ public:
     return result;
   }
 
-  Cursor getLexicalParent() const
-  {
-    CXCursor c = api->clang_getCursorLexicalParent(this->cursor);
-    return Cursor{ *api, c };
-  }
-
-  Cursor getSemanticParent() const
-  {
-    CXCursor c = api->clang_getCursorSemanticParent(this->cursor);
-    return Cursor{ *api, c };
-  }
-
-  CXSourceRange getExtent() const
-  {
-    return api->clang_getCursorExtent(this->cursor);
-  }
+  Cursor getLexicalParent() const;
+  Cursor getSemanticParent() const;
 
   Type getType() const
   {
@@ -143,18 +130,18 @@ public:
     return api->clang_getCursorExceptionSpecificationType(this->cursor);
   }
 
-  bool EnumDecl_isScoped() const
-  {
-    return api->clang_EnumDecl_isScoped(this->cursor);
-  }
-
   SourceLocation getLocation() const;
+  SourceRange getExtent() const;
 
   bool isConstructor() const;
   bool isDestructor() const;
 
+  bool EnumDecl_isScoped() const;
+
   bool CXXMethod_isConst() const;
   bool CXXMethod_isStatic() const;
+  bool CXXMethod_isVirtual() const;
+  bool CXXMethod_isPureVirtual() const;
 
   template<typename T>
   struct VisitorData
@@ -200,11 +187,39 @@ public:
 };
 
 /*!
+ * \fn Cursor getLexicalParent() const
+ * \brief returns the cursor's lexical parent
+ */
+inline Cursor Cursor::getLexicalParent() const
+{
+  return Cursor(*api, api->clang_getCursorLexicalParent(*this));
+}
+
+/*!
+ * \fn Cursor getSemanticParent() const
+ * \brief returns the cursor's semantic parent
+ */
+inline Cursor Cursor::getSemanticParent() const
+{
+  return Cursor(*api, api->clang_getCursorSemanticParent(this->cursor));
+}
+
+/*!
  * \fn SourceLocation getLocation() const
+ * \brief returns the cursor's location
  */
 inline SourceLocation Cursor::getLocation() const
 {
   return SourceLocation(*api, api->clang_getCursorLocation(cursor));
+}
+
+/*!
+ * \fn SourceRange getExtent() const
+ * \brief returns the cursor's source range
+ */
+inline SourceRange Cursor::getExtent() const
+{
+  return SourceRange(*api, api->clang_getCursorExtent(*this));
 }
 
 /*!
@@ -230,6 +245,15 @@ inline bool Cursor::isDestructor() const
 }
 
 /*!
+ * \fn bool EnumDecl_isScoped() const
+ * \brief returns whether the cursor is an enum class
+ */
+inline bool Cursor::EnumDecl_isScoped() const
+{
+  return api->clang_EnumDecl_isScoped(*this);
+}
+
+/*!
  * \fn bool CXXMethod_isConst() const
  * \brief returns whether the cursor is a const method
  */
@@ -245,6 +269,24 @@ inline bool Cursor::CXXMethod_isConst() const
 inline bool Cursor::CXXMethod_isStatic() const
 {
   return api->clang_CXXMethod_isStatic(cursor);
+}
+
+/*!
+ * \fn bool CXXMethod_isVirtual() const
+ * \brief returns whether the cursor is a virtual method
+ */
+inline bool Cursor::CXXMethod_isVirtual() const
+{
+  return api->clang_CXXMethod_isVirtual(*this);
+}
+
+/*!
+ * \fn bool CXXMethod_isPureVirtual() const
+ * \brief returns whether the cursor is a pure virtual method
+ */
+inline bool Cursor::CXXMethod_isPureVirtual() const
+{
+  return api->clang_CXXMethod_isPureVirtual(*this);
 }
 
 inline bool operator==(const Cursor& lhs, const Cursor& rhs)
