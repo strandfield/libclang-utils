@@ -8,9 +8,20 @@
 
 #include <vector>
 
+/*!
+ * \namespace libclang
+ */
+
 namespace libclang
 {
 
+/*!
+ * \class Index
+ */
+
+/*!
+ * \fn TranslationUnit parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options = 0)
+ */
 TranslationUnit Index::parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options)
 {
   const char* command_line_args[128] = { nullptr };
@@ -33,5 +44,12 @@ TranslationUnit Index::parseTranslationUnit(const std::string& file, const std::
   return TranslationUnit{ api, tu };
 }
 
-} // namespace libclang
+/*!
+ * \endclass
+ */
 
+ /*!
+  * \endnamespace
+  */
+
+} // namespace libclang

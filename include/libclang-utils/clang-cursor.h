@@ -23,6 +23,7 @@ namespace libclang
 
 /*!
  * \class Cursor
+ * \brief provides an interface to access a translation unit ast
  */
 
 class LIBCLANGU_API Cursor
@@ -31,104 +32,51 @@ public:
   LibClang* api;
   CXCursor cursor;
 
-  Cursor(LibClang& lib, CXCursor c)
-    : api(&lib), cursor(c)
-  {
+  /*!
+   * \fn Cursor() = delete
+   */
+  Cursor() = delete;
 
-  }
-
+  /*!
+   * \fn Cursor(const Cursor&) = default
+   */
   Cursor(const Cursor&) = default;
 
-  ~Cursor()
-  {
+  /*!
+   * \fn ~Cursor() = default
+   */
+  ~Cursor() = default;
 
-  }
-
+  /*!
+   * \fn Cursor& operator=(const Cursor&) = default
+   */
   Cursor& operator=(const Cursor&) = default;
 
-  operator CXCursor() const
-  {
-    return cursor;
-  }
+  Cursor(LibClang& lib, CXCursor c);
 
-  CXCursorKind kind() const
-  {
-    return api->clang_getCursorKind(this->cursor);
-  }
+  CXCursorKind kind() const;
 
-  bool isDeclaration() const
-  {
-    return api->clang_isDeclaration(kind());
-  }
+  bool isDeclaration() const;
+  bool isExpression() const;
+  bool isPreprocessing() const;
+  bool isReference() const;
+  bool isStatement() const;
+  bool isUnexposed() const;
 
-  bool isExpression() const
-  {
-    return api->clang_isExpression(kind());
-  }
-
-  bool isPreprocessing() const
-  {
-    return api->clang_isPreprocessing(kind());
-  }
-
-  bool isReference() const
-  {
-    return api->clang_isReference(kind());
-  }
-
-  bool isStatement() const
-  {
-    return api->clang_isStatement(kind());
-  }
-
-  bool isUnexposed() const
-  {
-    return api->clang_isUnexposed(kind());
-  }
-
-  std::string getSpelling() const
-  {
-    CXString str = api->clang_getCursorSpelling(this->cursor);
-    std::string result = api->clang_getCString(str);
-    api->clang_disposeString(str);
-    return result;
-  }
-
-  std::string getCursorKindSpelling() const
-  {
-    CXString str = api->clang_getCursorKindSpelling(kind());
-    std::string result = api->clang_getCString(str);
-    api->clang_disposeString(str);
-    return result;
-  }
+  std::string getSpelling() const;
+  std::string getCursorKindSpelling() const;
 
   Cursor getLexicalParent() const;
   Cursor getSemanticParent() const;
 
-  Type getType() const
-  {
-    return Type(*api, api->clang_getCursorType(this->cursor));
-  }
+  Type getType() const;
 
-  int getNumArguments() const
-  {
-    return api->clang_Cursor_getNumArguments(this->cursor);
-  }
+  int getNumArguments() const;
+  Cursor getArgument(int index) const;
 
-  Cursor getArgument(int index) const
-  {
-    return Cursor(*api, api->clang_Cursor_getArgument(this->cursor, index));
-  }
+  CX_CXXAccessSpecifier getCXXAccessSpecifier() const;
 
-  CX_CXXAccessSpecifier getCXXAccessSpecifier() const
-  {
-    return api->clang_getCXXAccessSpecifier(this->cursor);
-  }
-
-  int getExceptionSpecificationType() const
-  {
-    return api->clang_getCursorExceptionSpecificationType(this->cursor);
-  }
+  int getExceptionSpecificationType() const;
 
   SourceLocation getLocation() const;
   SourceRange getExtent() const;
@@ -143,48 +91,107 @@ public:
   bool CXXMethod_isVirtual() const;
   bool CXXMethod_isPureVirtual() const;
 
-  template<typename T>
-  struct VisitorData
-  {
-    LibClang& libclang;
-    T& functor;
-    bool should_break = false;
-  };
-
-  struct VisitorSelector1 {};
-  struct VisitorSelector2 : VisitorSelector1 {};
-
-  template<typename F>
-  static void visitor_invoker(F&& func, bool& stop_token, const Cursor& cursor, VisitorSelector1)
-  {
-    func(cursor);
-  }
-
-  template<typename F, typename = decltype(std::declval<F>()(std::declval<bool&>(), std::declval<const Cursor&>()))>
-  static void visitor_invoker(F&& func, bool& stop_token, const Cursor& cursor, VisitorSelector2)
-  {
-    func(stop_token, cursor);
-  }
-
-  template<typename T>
-  static CXChildVisitResult generic_visit_callback(CXCursor c, CXCursor p, CXClientData client_data)
-  {
-    VisitorData<T>& data = *static_cast<VisitorData<T>*>(client_data);
-    visitor_invoker(data.functor, data.should_break, Cursor{ data.libclang, c }, VisitorSelector2{});
-    return data.should_break ? CXChildVisit_Break : CXChildVisit_Continue;
-  }
-
-  template<typename Func>
-  void visitChildren(Func&& f) const
-  {
-    VisitorData<Func> data{ *api, f, false };
-    api->clang_visitChildren(this->cursor, generic_visit_callback<Func>, &data);
-  }
-
   size_t childCount() const;
   Cursor childAt(size_t index) const;
   std::vector<Cursor> children() const;
+
+  template<typename Func>
+  void visitChildren(Func&& f) const;
+
+  operator CXCursor() const;
 };
+
+/*!
+ * \fn Cursor(LibClang& lib, CXCursor c)
+ * \brief constructs a cursor
+ */
+inline Cursor::Cursor(LibClang& lib, CXCursor c)
+  : api(&lib), cursor(c)
+{
+
+}
+
+/*!
+ * \fn CXCursorKind kind() const
+ */
+inline CXCursorKind Cursor::kind() const
+{
+  return api->clang_getCursorKind(this->cursor);
+}
+
+/*!
+ * \fn bool isDeclaration() const
+ * \brief returns whether the cursor is a declaration
+ */
+inline bool Cursor::isDeclaration() const
+{
+  return api->clang_isDeclaration(kind());
+}
+
+/*!
+ * \fn bool isExpression() const
+ * \brief returns whether the cursor is an expression
+ */
+inline bool Cursor::isExpression() const
+{
+  return api->clang_isExpression(kind());
+}
+
+/*!
+ * \fn bool isPreprocessing() const
+ */
+inline bool Cursor::isPreprocessing() const
+{
+  return api->clang_isPreprocessing(kind());
+}
+
+/*!
+ * \fn bool isReference() const
+ * \brief returns whether the cursor is a reference
+ */
+inline bool Cursor::isReference() const
+{
+  return api->clang_isReference(kind());
+}
+
+/*!
+ * \fn bool isStatement() const
+ * \brief returns whether the cursor is a statement
+ */
+inline bool Cursor::isStatement() const
+{
+  return api->clang_isStatement(kind());
+}
+
+/*!
+ * \fn bool isUnexposed() const
+ */
+inline bool Cursor::isUnexposed() const
+{
+  return api->clang_isUnexposed(kind());
+}
+
+/*!
+ * \fn std::string getSpelling() const
+ */
+inline std::string Cursor::getSpelling() const
+{
+  CXString str = api->clang_getCursorSpelling(this->cursor);
+  std::string result = api->clang_getCString(str);
+  api->clang_disposeString(str);
+  return result;
+}
+
+/*!
+ * \fn std::string getCursorKindSpelling() const
+ */
+inline std::string Cursor::getCursorKindSpelling() const
+{
+  CXString str = api->clang_getCursorKindSpelling(kind());
+  std::string result = api->clang_getCString(str);
+  api->clang_disposeString(str);
+  return result;
+}
 
 /*!
  * \fn Cursor getLexicalParent() const
@@ -202,6 +209,46 @@ inline Cursor Cursor::getLexicalParent() const
 inline Cursor Cursor::getSemanticParent() const
 {
   return Cursor(*api, api->clang_getCursorSemanticParent(this->cursor));
+}
+
+/*!
+ * \fn Type getType() const
+ */
+inline Type Cursor::getType() const
+{
+  return Type(*api, api->clang_getCursorType(this->cursor));
+}
+
+/*!
+ * \fn int getNumArguments() const
+ */
+inline int Cursor::getNumArguments() const
+{
+  return api->clang_Cursor_getNumArguments(this->cursor);
+}
+
+/*!
+ * \fn Cursor getArgument(int index) const
+ */
+inline Cursor Cursor::getArgument(int index) const
+{
+  return Cursor(*api, api->clang_Cursor_getArgument(this->cursor, index));
+}
+
+/*!
+ * \fn CX_CXXAccessSpecifier getCXXAccessSpecifier() const
+ */
+inline CX_CXXAccessSpecifier Cursor::getCXXAccessSpecifier() const
+{
+  return api->clang_getCXXAccessSpecifier(this->cursor);
+}
+
+/*!
+ * \fn int getExceptionSpecificationType() const
+ */
+inline int Cursor::getExceptionSpecificationType() const
+{
+  return api->clang_getCursorExceptionSpecificationType(this->cursor);
 }
 
 /*!
@@ -287,6 +334,60 @@ inline bool Cursor::CXXMethod_isVirtual() const
 inline bool Cursor::CXXMethod_isPureVirtual() const
 {
   return api->clang_CXXMethod_isPureVirtual(*this);
+}
+
+namespace details
+{
+
+template<typename T>
+struct VisitorData
+{
+  LibClang& libclang;
+  T& functor;
+  bool should_break = false;
+};
+
+struct VisitorSelector1 {};
+struct VisitorSelector2 : VisitorSelector1 {};
+
+template<typename F>
+void visitor_invoker(F&& func, bool& stop_token, const Cursor& cursor, VisitorSelector1)
+{
+  func(cursor);
+}
+
+template<typename F, typename = decltype(std::declval<F>()(std::declval<bool&>(), std::declval<const Cursor&>()))>
+void visitor_invoker(F&& func, bool& stop_token, const Cursor& cursor, VisitorSelector2)
+{
+  func(stop_token, cursor);
+}
+
+template<typename T>
+CXChildVisitResult generic_visit_callback(CXCursor c, CXCursor p, CXClientData client_data)
+{
+  VisitorData<T>& data = *static_cast<VisitorData<T>*>(client_data);
+  visitor_invoker(data.functor, data.should_break, Cursor{ data.libclang, c }, VisitorSelector2{});
+  return data.should_break ? CXChildVisit_Break : CXChildVisit_Continue;
+}
+
+} // namespace details
+
+/*!
+ * \fn void visitChildren(Func&& f) const
+ */
+template<typename Func>
+inline void Cursor::visitChildren(Func&& f) const
+{
+  details::VisitorData<Func> data{ *api, f, false };
+  api->clang_visitChildren(this->cursor, details::generic_visit_callback<Func>, &data);
+}
+
+/*!
+ * \fn operator CXCursor() const
+ */
+inline Cursor::operator CXCursor() const
+{
+  return cursor;
 }
 
 inline bool operator==(const Cursor& lhs, const Cursor& rhs)

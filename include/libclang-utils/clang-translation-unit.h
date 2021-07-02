@@ -29,32 +29,27 @@ public:
   LibClang* api = nullptr;
   CXTranslationUnit translation_unit = nullptr;
 
+  /*!
+   * \fn TranslationUnit() = default
+   */
   TranslationUnit() = default;
 
-  TranslationUnit(LibClang& lib, CXTranslationUnit tu)
-    : api(&lib), translation_unit(tu)
-  {
-
-  }
-
+  /*!
+   * \fn TranslationUnit(const TranslationUnit&) = delete
+   */
   TranslationUnit(const TranslationUnit&) = delete;
 
-  TranslationUnit(TranslationUnit&& other) noexcept
-    : api(other.api), translation_unit(other.translation_unit)
-  {
-    other.translation_unit = nullptr;
-  }
+  TranslationUnit(LibClang& lib, CXTranslationUnit tu);
+  TranslationUnit(TranslationUnit&& other) noexcept;
 
   ~TranslationUnit();
 
+  /*!
+   * \fn TranslationUnit& operator=(const TranslationUnit&) = delete
+   */
   TranslationUnit& operator=(const TranslationUnit&) = delete;
 
   TranslationUnit& operator=(TranslationUnit&& other);
-
-  operator CXTranslationUnit() const
-  {
-    return translation_unit;
-  }
 
   Cursor getCursor() const;
 
@@ -62,7 +57,35 @@ public:
 
   File getFile(const char* path) const;
   File getFile(const std::string& path) const;
+
+  operator CXTranslationUnit() const;
 };
+
+/*!
+ * \fn TranslationUnit(LibClang& lib, CXTranslationUnit tu)
+ */
+inline TranslationUnit::TranslationUnit(LibClang& lib, CXTranslationUnit tu)
+  : api(&lib), translation_unit(tu)
+{
+
+}
+
+/*!
+ * \fn TranslationUnit(TranslationUnit&& other) noexcept
+ */
+inline TranslationUnit::TranslationUnit(TranslationUnit&& other) noexcept
+  : api(other.api), translation_unit(other.translation_unit)
+{
+  other.translation_unit = nullptr;
+}
+
+/*!
+ * \fn operator CXTranslationUnit() const
+ */
+inline TranslationUnit::operator CXTranslationUnit() const
+{
+  return translation_unit;
+}
 
 /*!
  * \endclass

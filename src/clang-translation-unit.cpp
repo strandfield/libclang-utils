@@ -19,12 +19,18 @@ namespace libclang
  * \class TranslationUnit
  */
 
+/*!
+ * \fn ~TranslationUnit()
+ */
 TranslationUnit::~TranslationUnit()
 {
   if(translation_unit)
     api->clang_disposeTranslationUnit(translation_unit);
 }
 
+/*!
+ * \fn TranslationUnit& operator=(TranslationUnit&& other)
+ */
 TranslationUnit& TranslationUnit::operator=(TranslationUnit&& other)
 {
   if (this->api && this->translation_unit)
@@ -37,12 +43,18 @@ TranslationUnit& TranslationUnit::operator=(TranslationUnit&& other)
   return *(this);
 }
 
+/*!
+ * \fn Cursor getCursor() const
+ */
 Cursor TranslationUnit::getCursor() const
 {
   CXCursor c = api->clang_getTranslationUnitCursor(this->translation_unit);
   return Cursor{ *api, c };
 }
 
+/*!
+ * \fn TokenSet tokenize(CXSourceRange range) const
+ */
 TokenSet TranslationUnit::tokenize(CXSourceRange range) const
 {
   CXToken* tokens = nullptr;
