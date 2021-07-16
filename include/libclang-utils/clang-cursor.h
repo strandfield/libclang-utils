@@ -69,6 +69,8 @@ public:
   Cursor getLexicalParent() const;
   Cursor getSemanticParent() const;
 
+  Cursor getDefinition() const;
+
   Type getType() const;
 
   int getNumArguments() const;
@@ -209,6 +211,15 @@ inline Cursor Cursor::getLexicalParent() const
 inline Cursor Cursor::getSemanticParent() const
 {
   return Cursor(*api, api->clang_getCursorSemanticParent(this->cursor));
+}
+
+/*!
+ * \fn Cursor getDefinition() const
+ * \brief returns the cursor's definition
+ */
+inline Cursor Cursor::getDefinition() const
+{
+  return Cursor(*api, api->clang_getCursorDefinition(this->cursor));
 }
 
 /*!
