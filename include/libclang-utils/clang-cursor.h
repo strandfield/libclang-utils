@@ -65,6 +65,7 @@ public:
 
   std::string getSpelling() const;
   std::string getCursorKindSpelling() const;
+  std::string getMangling() const;
 
   Cursor getLexicalParent() const;
   Cursor getSemanticParent() const;
@@ -190,6 +191,17 @@ inline std::string Cursor::getSpelling() const
 inline std::string Cursor::getCursorKindSpelling() const
 {
   CXString str = api->clang_getCursorKindSpelling(kind());
+  std::string result = api->clang_getCString(str);
+  api->clang_disposeString(str);
+  return result;
+}
+
+/*!
+ * \fn std::string getMangling() const
+ */
+inline std::string Cursor::getMangling() const
+{
+  CXString str = api->clang_Cursor_getMangling(this->cursor);
   std::string result = api->clang_getCString(str);
   api->clang_disposeString(str);
   return result;
