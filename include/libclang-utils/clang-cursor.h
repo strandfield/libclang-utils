@@ -59,18 +59,24 @@ public:
   bool isDeclaration() const;
   bool isExpression() const;
   bool isPreprocessing() const;
-  bool isReference() const;
   bool isStatement() const;
   bool isUnexposed() const;
 
+  bool isReference() const;
+  Cursor getReference() const;
+
   std::string getSpelling() const;
   std::string getCursorKindSpelling() const;
+  std::string getUSR() const;
   std::string getMangling() const;
 
   Cursor getLexicalParent() const;
   Cursor getSemanticParent() const;
 
+  bool isDefinition() const;
   Cursor getDefinition() const;
+
+  Cursor getCanonical() const;
 
   Type getType() const;
 
@@ -149,15 +155,6 @@ inline bool Cursor::isPreprocessing() const
 }
 
 /*!
- * \fn bool isReference() const
- * \brief returns whether the cursor is a reference
- */
-inline bool Cursor::isReference() const
-{
-  return api->clang_isReference(kind());
-}
-
-/*!
  * \fn bool isStatement() const
  * \brief returns whether the cursor is a statement
  */
@@ -172,6 +169,24 @@ inline bool Cursor::isStatement() const
 inline bool Cursor::isUnexposed() const
 {
   return api->clang_isUnexposed(kind());
+}
+
+/*!
+ * \fn bool isReference() const
+ * \brief returns whether the cursor is a reference
+ */
+inline bool Cursor::isReference() const
+{
+  return api->clang_isReference(kind());
+}
+
+/*!
+ * \fn Cursor getReference() const
+ * \brief returns the cursor that this cursor is a reference to
+ */
+inline Cursor Cursor::getReference() const
+{
+  return Cursor(*api, api->clang_getCursorReferenced(*this));
 }
 
 /*!
@@ -191,6 +206,17 @@ inline std::string Cursor::getSpelling() const
 inline std::string Cursor::getCursorKindSpelling() const
 {
   CXString str = api->clang_getCursorKindSpelling(kind());
+  std::string result = api->clang_getCString(str);
+  api->clang_disposeString(str);
+  return result;
+}
+
+/*!
+ * \fn std::string getUSR() const
+ */
+inline std::string Cursor::getUSR() const
+{
+  CXString str = api->clang_getCursorUSR(*this);
   std::string result = api->clang_getCString(str);
   api->clang_disposeString(str);
   return result;
@@ -226,12 +252,33 @@ inline Cursor Cursor::getSemanticParent() const
 }
 
 /*!
+ * \fn bool isDefinition() const
+ */
+inline bool Cursor::isDefinition() const
+{
+  return  api->clang_isCursorDefinition(*this);
+}
+
+/*!
  * \fn Cursor getDefinition() const
  * \brief returns the cursor's definition
  */
 inline Cursor Cursor::getDefinition() const
 {
   return Cursor(*api, api->clang_getCursorDefinition(this->cursor));
+}
+
+/*!
+ * \fn Cursor getCanonical() const
+ * 
+ * If this cursor is declaration, returns the canonical cursor representing the 
+ * entity. 
+ * This is useful for entities that can be declared multiple times (i.e. via 
+ * forward declarations).
+ */
+inline Cursor Cursor::getCanonical() const
+{
+  return Cursor(*api, api->clang_getCanonicalCursor(*this));
 }
 
 /*!

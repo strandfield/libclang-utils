@@ -40,6 +40,12 @@ public:
     return this->token;
   }
 
+  CXTokenKind getKind() const
+  {
+    //@TODO: make inline out of class
+    return api->clang_getTokenKind(*this);
+  }
+
   std::string getSpelling() const
   {
     CXString str = api->clang_getTokenSpelling(this->translation_unit, this->token);
