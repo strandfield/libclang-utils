@@ -95,6 +95,7 @@ public:
 
   bool EnumDecl_isScoped() const;
 
+  bool CXXMethod_isDefaulted() const;
   bool CXXMethod_isConst() const;
   bool CXXMethod_isStatic() const;
   bool CXXMethod_isVirtual() const;
@@ -368,6 +369,15 @@ inline bool Cursor::isDestructor() const
 inline bool Cursor::EnumDecl_isScoped() const
 {
   return api->clang_EnumDecl_isScoped(*this);
+}
+
+/*!
+ * \fn bool CXXMethod_isDefaulted() const
+ * \brief returns whether the cursor is a defaulted function
+ */
+inline bool Cursor::CXXMethod_isDefaulted() const
+{
+  return api->clang_CXXMethod_isDefaulted(*this);
 }
 
 /*!
