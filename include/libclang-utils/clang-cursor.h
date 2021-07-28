@@ -79,6 +79,7 @@ public:
   Cursor getCanonical() const;
 
   Type getType() const;
+  Type getTypedefDeclUnderlyingType() const;
 
   int getNumArguments() const;
   Cursor getArgument(int index) const;
@@ -288,6 +289,14 @@ inline Cursor Cursor::getCanonical() const
 inline Type Cursor::getType() const
 {
   return Type(*api, api->clang_getCursorType(this->cursor));
+}
+
+/*!
+ * \fn Type getTypedefDeclUnderlyingType() const
+ */
+inline Type Cursor::getTypedefDeclUnderlyingType() const
+{
+  return Type(*api, api->clang_getTypedefDeclUnderlyingType(*this));
 }
 
 /*!
