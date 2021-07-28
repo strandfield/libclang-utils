@@ -385,6 +385,9 @@ Index LibClang::createIndex()
 
 std::string LibClang::toStdString(CXString str)
 {
+  if (!str.data)
+    return std::string();
+
   std::string result = clang_getCString(str);
   clang_disposeString(str);
   return result;
