@@ -126,6 +126,8 @@ public:
   {
     return Token{ *api, translation_unit, this->tokens[i] };
   }
+
+  std::string getSpelling() const;
 };
 
 } // namespace libclang
