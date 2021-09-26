@@ -343,12 +343,6 @@ public:
   /* libclang helpers */
   
   std::string toStdString(CXString str);
-  [[deprecated("use Cursor::getLocation()")]] CXFile getCursorFile(CXCursor cursor);
-  [[deprecated("use Cursor::getLocation()")]] std::string getCursorFilePath(CXCursor cursor);
-  [[deprecated("use Cursor::getSpelling()")]] std::string getCursorSpelling(CXCursor cursor);
-  [[deprecated("use Type::getSpelling()")]] std::string getTypeSpelling(CXType type);
-  std::string getTokenSpelling(CXTranslationUnit tu, CXToken tok);
-  [[deprecated("use Cursor::getDefinition()")]] bool isForwardDeclaration(CXCursor cursor);
 
 public:
   LibClang();
