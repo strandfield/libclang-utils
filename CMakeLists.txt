@@ -12,15 +12,6 @@ endif()
 set(LIBCLANGUTILS_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 ##################################################################
-###### C++17 clang (Travis CI)
-##################################################################
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  message("Building with clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-endif()
-
-##################################################################
 ###### coverage build
 ##################################################################
 
