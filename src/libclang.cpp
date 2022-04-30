@@ -8,6 +8,9 @@
 
 #include "libclang-utils/clang-index.h"
 
+/*!
+ * \namespace libclang 
+ */
 namespace libclang
 {
 
@@ -56,9 +59,38 @@ static CXVersion parse_clang_version(std::string str)
   return result;
 }
 
+/*!
+ * \class LibClang
+ */
+
+ /*!
+  * \fn LibClang()
+  * \brief default constructor
+  * 
+  * Constructs a LibClang instance.
+  * The "libclang" shared library (e.g., libclang.dll on Windows) must be in your path.
+  * 
+  * Throws \t LibClangError if the library cannot be loaded.
+  */
 LibClang::LibClang()
+  : LibClang(std::string("libclang"))
 {
-  lib.reset(new dynlib::Library("libclang"));
+  
+}
+
+/*!
+ * \fn LibClang(const std::string& libpath)
+ * \param the library path
+ * \brief construct an instance with a given library path
+ *
+ * Constructs a LibClang instance.
+ * The \a libpath is used as library path.
+ *
+ * Throws \t LibClangError if the library cannot be loaded.
+ */
+LibClang::LibClang(const std::string& libpath)
+{
+  lib.reset(new dynlib::Library(libpath));
 
   if (!lib->load())
     throw LibClangError{ "could not load libclang" };
@@ -368,21 +400,37 @@ LibClang::~LibClang()
 
 }
 
+/*!
+ * \fn CXVersion version() const
+ * \brief returns libclang's version
+ */
 CXVersion LibClang::version() const
 {
   return m_version;
 }
 
+/*!
+ * \fn const std::string& printableVersion() const
+ * \brief returns libclang's version as a printable string
+ */
 const std::string& LibClang::printableVersion() const
 {
   return m_printable_version;
 }
 
+/*!
+ * \fn Index createIndex()
+ * \brief create an index
+ */
 Index LibClang::createIndex()
 {
   return Index{ *this };
 }
 
+/*!
+ * \fn std::string toStdString(CXString str)
+ * \brief converts a libclang string to a std::string
+ */
 std::string LibClang::toStdString(CXString str)
 {
   if (!str.data)
@@ -392,5 +440,13 @@ std::string LibClang::toStdString(CXString str)
   clang_disposeString(str);
   return result;
 }
+
+/*!
+ * \endclass
+ */
+
+ /*!
+  * \endnamespace
+  */
 
 } // namespace libclang

@@ -349,6 +349,8 @@ public:
   LibClang(const LibClang&) = default;
   ~LibClang();
 
+  explicit LibClang(const std::string& libpath);
+
   CXVersion version() const;
   const std::string& printableVersion() const;
 
