@@ -51,6 +51,8 @@ public:
 
   TranslationUnit& operator=(TranslationUnit&& other);
 
+  CXSaveError saveTranslationUnit(const std::string& filename, unsigned options = CXSaveTranslationUnit_None) const;
+
   Cursor getCursor() const;
 
   TokenSet tokenize(CXSourceRange range) const;

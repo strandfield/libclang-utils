@@ -34,6 +34,7 @@ public:
   Index(Index&& other) noexcept;
   ~Index();
 
+  TranslationUnit createTranslationUnit(const std::string& astfile);
   TranslationUnit parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options = 0);
 };
 

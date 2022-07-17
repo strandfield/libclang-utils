@@ -53,6 +53,16 @@ Cursor TranslationUnit::getCursor() const
 }
 
 /*!
+ * \fn CXSaveError saveTranslationUnit(const std::string& filename, unsigned options = CXSaveTranslationUnit_None) const
+ * \brief saves the translation unit
+ */
+CXSaveError TranslationUnit::saveTranslationUnit(const std::string& filename, unsigned options) const
+{
+  int r = api->clang_saveTranslationUnit(this->translation_unit, filename.c_str(), options);
+  return static_cast<CXSaveError>(r);
+}
+
+/*!
  * \fn TokenSet tokenize(CXSourceRange range) const
  */
 TokenSet TranslationUnit::tokenize(CXSourceRange range) const

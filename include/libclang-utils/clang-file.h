@@ -33,7 +33,7 @@ public:
   File() = delete;
 
   /*!
-   * \fn File(const Type&) = default
+   * \fn File(const File&) = default
    */
   File(const File&) = default;
 

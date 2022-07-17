@@ -19,6 +19,18 @@ namespace libclang
  * \class Index
  */
 
+ /*!
+  * \fn TranslationUnit createTranslationUnit(const std::string& astfile)
+  * \brief creates a translation unit from an ast file
+  * 
+  * AST files can be produced with TranslationUnit::saveTranslationUnit().
+  */
+TranslationUnit Index::createTranslationUnit(const std::string& astfile)
+{
+  CXTranslationUnit tu = api.clang_createTranslationUnit(this->index, astfile.data());
+  return TranslationUnit{ api, tu };
+}
+
 /*!
  * \fn TranslationUnit parseTranslationUnit(const std::string& file, const std::set<std::string>& includedirs, int options = 0)
  */
