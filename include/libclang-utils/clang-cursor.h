@@ -10,6 +10,7 @@
 #include "libclang-utils/clang-source-range.h"
 #include "libclang-utils/clang-type.h"
 
+#include <cassert>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -20,6 +21,15 @@
 
 namespace libclang
 {
+
+template<CXCursorKind K>
+struct CursorKind 
+{
+  operator CXCursorKind() const
+  {
+    return K;
+  }
+};
 
 /*!
  * \class Cursor
@@ -492,6 +502,258 @@ inline bool operator!=(const Cursor& lhs, const Cursor& rhs)
 /*!
  * \endclass
  */
+
+/*!
+ * \class TCursor
+ * \tparam the CXCursorKind of the cursor
+ * \brief provides a type for a specific kind of cursor
+ */
+template<CXCursorKind K>
+class TCursor : public Cursor
+{
+public:
+  using Cursor::Cursor;
+
+  explicit TCursor(const Cursor& c)
+    : Cursor(c)
+  {
+    assert(c.kind() == K);
+  }
+
+  CursorKind<K> kind() const { return {}; }
+};
+
+/*!
+ * \endclass
+ */
+
+/*!
+ * \fn void visit(const Cursor& c, F&& f)
+ * \tparam F functor type
+ * \brief dynamic dispatch of the cursor based on its kind
+ */
+template<typename F>
+void visit(const Cursor& c, F&& f)
+{
+  switch (c.kind())
+  {
+  case CXCursor_UnexposedDecl:                                    f(TCursor<CXCursor_UnexposedDecl>(c));                                    break;
+  case CXCursor_StructDecl:                                       f(TCursor<CXCursor_StructDecl>(c));                                       break;
+  case CXCursor_UnionDecl:                                        f(TCursor<CXCursor_UnionDecl>(c));                                        break;
+  case CXCursor_ClassDecl:                                        f(TCursor<CXCursor_ClassDecl>(c));                                        break;
+  case CXCursor_EnumDecl:                                         f(TCursor<CXCursor_EnumDecl>(c));                                         break;
+  case CXCursor_FieldDecl:                                        f(TCursor<CXCursor_FieldDecl>(c));                                        break;
+  case CXCursor_EnumConstantDecl:                                 f(TCursor<CXCursor_EnumConstantDecl>(c));                                 break;
+  case CXCursor_FunctionDecl:                                     f(TCursor<CXCursor_FunctionDecl>(c));                                     break;
+  case CXCursor_VarDecl:                                          f(TCursor<CXCursor_VarDecl>(c));                                          break;
+  case CXCursor_ParmDecl:                                         f(TCursor<CXCursor_ParmDecl>(c));                                         break;
+  case CXCursor_ObjCInterfaceDecl:                                f(TCursor<CXCursor_ObjCInterfaceDecl>(c));                                break;
+  case CXCursor_ObjCCategoryDecl:                                 f(TCursor<CXCursor_ObjCCategoryDecl>(c));                                 break;
+  case CXCursor_ObjCProtocolDecl:                                 f(TCursor<CXCursor_ObjCProtocolDecl>(c));                                 break;
+  case CXCursor_ObjCPropertyDecl:                                 f(TCursor<CXCursor_ObjCPropertyDecl>(c));                                 break;
+  case CXCursor_ObjCIvarDecl:                                     f(TCursor<CXCursor_ObjCIvarDecl>(c));                                     break;
+  case CXCursor_ObjCInstanceMethodDecl:                           f(TCursor<CXCursor_ObjCInstanceMethodDecl>(c));                           break;
+  case CXCursor_ObjCClassMethodDecl:                              f(TCursor<CXCursor_ObjCClassMethodDecl>(c));                              break;
+  case CXCursor_ObjCImplementationDecl:                           f(TCursor<CXCursor_ObjCImplementationDecl>(c));                           break;
+  case CXCursor_ObjCCategoryImplDecl:                             f(TCursor<CXCursor_ObjCCategoryImplDecl>(c));                             break;
+  case CXCursor_TypedefDecl:                                      f(TCursor<CXCursor_TypedefDecl>(c));                                      break;
+  case CXCursor_CXXMethod:                                        f(TCursor<CXCursor_CXXMethod>(c));                                        break;
+  case CXCursor_Namespace:                                        f(TCursor<CXCursor_Namespace>(c));                                        break;
+  case CXCursor_LinkageSpec:                                      f(TCursor<CXCursor_LinkageSpec>(c));                                      break;
+  case CXCursor_Constructor:                                      f(TCursor<CXCursor_Constructor>(c));                                      break;
+  case CXCursor_Destructor:                                       f(TCursor<CXCursor_Destructor>(c));                                       break;
+  case CXCursor_ConversionFunction:                               f(TCursor<CXCursor_ConversionFunction>(c));                               break;
+  case CXCursor_TemplateTypeParameter:                            f(TCursor<CXCursor_TemplateTypeParameter>(c));                            break;
+  case CXCursor_NonTypeTemplateParameter:                         f(TCursor<CXCursor_NonTypeTemplateParameter>(c));                         break;
+  case CXCursor_TemplateTemplateParameter:                        f(TCursor<CXCursor_TemplateTemplateParameter>(c));                        break;
+  case CXCursor_FunctionTemplate:                                 f(TCursor<CXCursor_FunctionTemplate>(c));                                 break;
+  case CXCursor_ClassTemplate:                                    f(TCursor<CXCursor_ClassTemplate>(c));                                    break;
+  case CXCursor_ClassTemplatePartialSpecialization:               f(TCursor<CXCursor_ClassTemplatePartialSpecialization>(c));               break;
+  case CXCursor_NamespaceAlias:                                   f(TCursor<CXCursor_NamespaceAlias>(c));                                   break;
+  case CXCursor_UsingDirective:                                   f(TCursor<CXCursor_UsingDirective>(c));                                   break;
+  case CXCursor_UsingDeclaration:                                 f(TCursor<CXCursor_UsingDeclaration>(c));                                 break;
+  case CXCursor_TypeAliasDecl:                                    f(TCursor<CXCursor_TypeAliasDecl>(c));                                    break;
+  case CXCursor_ObjCSynthesizeDecl:                               f(TCursor<CXCursor_ObjCSynthesizeDecl>(c));                               break;
+  case CXCursor_ObjCDynamicDecl:                                  f(TCursor<CXCursor_ObjCDynamicDecl>(c));                                  break;
+  case CXCursor_CXXAccessSpecifier:                               f(TCursor<CXCursor_CXXAccessSpecifier>(c));                               break;
+  case CXCursor_ObjCSuperClassRef:                                f(TCursor<CXCursor_ObjCSuperClassRef>(c));                                break;
+  case CXCursor_ObjCProtocolRef:                                  f(TCursor<CXCursor_ObjCProtocolRef>(c));                                  break;
+  case CXCursor_ObjCClassRef:                                     f(TCursor<CXCursor_ObjCClassRef>(c));                                     break;
+  case CXCursor_TypeRef:                                          f(TCursor<CXCursor_TypeRef>(c));                                          break;
+  case CXCursor_CXXBaseSpecifier:                                 f(TCursor<CXCursor_CXXBaseSpecifier>(c));                                 break;
+  case CXCursor_TemplateRef:                                      f(TCursor<CXCursor_TemplateRef>(c));                                      break;
+  case CXCursor_NamespaceRef:                                     f(TCursor<CXCursor_NamespaceRef>(c));                                     break;
+  case CXCursor_MemberRef:                                        f(TCursor<CXCursor_MemberRef>(c));                                        break;
+  case CXCursor_LabelRef:                                         f(TCursor<CXCursor_LabelRef>(c));                                         break;
+  case CXCursor_OverloadedDeclRef:                                f(TCursor<CXCursor_OverloadedDeclRef>(c));                                break;
+  case CXCursor_VariableRef:                                      f(TCursor<CXCursor_VariableRef>(c));                                      break;
+  case CXCursor_InvalidFile:                                      f(TCursor<CXCursor_InvalidFile>(c));                                      break;
+  case CXCursor_NoDeclFound:                                      f(TCursor<CXCursor_NoDeclFound>(c));                                      break;
+  case CXCursor_NotImplemented:                                   f(TCursor<CXCursor_NotImplemented>(c));                                   break;
+  case CXCursor_InvalidCode:                                      f(TCursor<CXCursor_InvalidCode>(c));                                      break;
+  case CXCursor_UnexposedExpr:                                    f(TCursor<CXCursor_UnexposedExpr>(c));                                    break;
+  case CXCursor_DeclRefExpr:                                      f(TCursor<CXCursor_DeclRefExpr>(c));                                      break;
+  case CXCursor_MemberRefExpr:                                    f(TCursor<CXCursor_MemberRefExpr>(c));                                    break;
+  case CXCursor_CallExpr:                                         f(TCursor<CXCursor_CallExpr>(c));                                         break;
+  case CXCursor_ObjCMessageExpr:                                  f(TCursor<CXCursor_ObjCMessageExpr>(c));                                  break;
+  case CXCursor_BlockExpr:                                        f(TCursor<CXCursor_BlockExpr>(c));                                        break;
+  case CXCursor_IntegerLiteral:                                   f(TCursor<CXCursor_IntegerLiteral>(c));                                   break;
+  case CXCursor_FloatingLiteral:                                  f(TCursor<CXCursor_FloatingLiteral>(c));                                  break;
+  case CXCursor_ImaginaryLiteral:                                 f(TCursor<CXCursor_ImaginaryLiteral>(c));                                 break;
+  case CXCursor_StringLiteral:                                    f(TCursor<CXCursor_StringLiteral>(c));                                    break;
+  case CXCursor_CharacterLiteral:                                 f(TCursor<CXCursor_CharacterLiteral>(c));                                 break;
+  case CXCursor_ParenExpr:                                        f(TCursor<CXCursor_ParenExpr>(c));                                        break;
+  case CXCursor_UnaryOperator:                                    f(TCursor<CXCursor_UnaryOperator>(c));                                    break;
+  case CXCursor_ArraySubscriptExpr:                               f(TCursor<CXCursor_ArraySubscriptExpr>(c));                               break;
+  case CXCursor_BinaryOperator:                                   f(TCursor<CXCursor_BinaryOperator>(c));                                   break;
+  case CXCursor_CompoundAssignOperator:                           f(TCursor<CXCursor_CompoundAssignOperator>(c));                           break;
+  case CXCursor_ConditionalOperator:                              f(TCursor<CXCursor_ConditionalOperator>(c));                              break;
+  case CXCursor_CStyleCastExpr:                                   f(TCursor<CXCursor_CStyleCastExpr>(c));                                   break;
+  case CXCursor_CompoundLiteralExpr:                              f(TCursor<CXCursor_CompoundLiteralExpr>(c));                              break;
+  case CXCursor_InitListExpr:                                     f(TCursor<CXCursor_InitListExpr>(c));                                     break;
+  case CXCursor_AddrLabelExpr:                                    f(TCursor<CXCursor_AddrLabelExpr>(c));                                    break;
+  case CXCursor_StmtExpr:                                         f(TCursor<CXCursor_StmtExpr>(c));                                         break;
+  case CXCursor_GenericSelectionExpr:                             f(TCursor<CXCursor_GenericSelectionExpr>(c));                             break;
+  case CXCursor_GNUNullExpr:                                      f(TCursor<CXCursor_GNUNullExpr>(c));                                      break;
+  case CXCursor_CXXStaticCastExpr:                                f(TCursor<CXCursor_CXXStaticCastExpr>(c));                                break;
+  case CXCursor_CXXDynamicCastExpr:                               f(TCursor<CXCursor_CXXDynamicCastExpr>(c));                               break;
+  case CXCursor_CXXReinterpretCastExpr:                           f(TCursor<CXCursor_CXXReinterpretCastExpr>(c));                           break;
+  case CXCursor_CXXConstCastExpr:                                 f(TCursor<CXCursor_CXXConstCastExpr>(c));                                 break;
+  case CXCursor_CXXFunctionalCastExpr:                            f(TCursor<CXCursor_CXXFunctionalCastExpr>(c));                            break;
+  case CXCursor_CXXTypeidExpr:                                    f(TCursor<CXCursor_CXXTypeidExpr>(c));                                    break;
+  case CXCursor_CXXBoolLiteralExpr:                               f(TCursor<CXCursor_CXXBoolLiteralExpr>(c));                               break;
+  case CXCursor_CXXNullPtrLiteralExpr:                            f(TCursor<CXCursor_CXXNullPtrLiteralExpr>(c));                            break;
+  case CXCursor_CXXThisExpr:                                      f(TCursor<CXCursor_CXXThisExpr>(c));                                      break;
+  case CXCursor_CXXThrowExpr:                                     f(TCursor<CXCursor_CXXThrowExpr>(c));                                     break;
+  case CXCursor_CXXNewExpr:                                       f(TCursor<CXCursor_CXXNewExpr>(c));                                       break;
+  case CXCursor_CXXDeleteExpr:                                    f(TCursor<CXCursor_CXXDeleteExpr>(c));                                    break;
+  case CXCursor_UnaryExpr:                                        f(TCursor<CXCursor_UnaryExpr>(c));                                        break;
+  case CXCursor_ObjCStringLiteral:                                f(TCursor<CXCursor_ObjCStringLiteral>(c));                                break;
+  case CXCursor_ObjCEncodeExpr:                                   f(TCursor<CXCursor_ObjCEncodeExpr>(c));                                   break;
+  case CXCursor_ObjCSelectorExpr:                                 f(TCursor<CXCursor_ObjCSelectorExpr>(c));                                 break;
+  case CXCursor_ObjCProtocolExpr:                                 f(TCursor<CXCursor_ObjCProtocolExpr>(c));                                 break;
+  case CXCursor_ObjCBridgedCastExpr:                              f(TCursor<CXCursor_ObjCBridgedCastExpr>(c));                              break;
+  case CXCursor_PackExpansionExpr:                                f(TCursor<CXCursor_PackExpansionExpr>(c));                                break;
+  case CXCursor_SizeOfPackExpr:                                   f(TCursor<CXCursor_SizeOfPackExpr>(c));                                   break;
+  case CXCursor_LambdaExpr:                                       f(TCursor<CXCursor_LambdaExpr>(c));                                       break;
+  case CXCursor_ObjCBoolLiteralExpr:                              f(TCursor<CXCursor_ObjCBoolLiteralExpr>(c));                              break;
+  case CXCursor_ObjCSelfExpr:                                     f(TCursor<CXCursor_ObjCSelfExpr>(c));                                     break;
+  case CXCursor_OMPArraySectionExpr:                              f(TCursor<CXCursor_OMPArraySectionExpr>(c));                              break;
+  case CXCursor_ObjCAvailabilityCheckExpr:                        f(TCursor<CXCursor_ObjCAvailabilityCheckExpr>(c));                        break;
+  case CXCursor_FixedPointLiteral:                                f(TCursor<CXCursor_FixedPointLiteral>(c));                                break;
+  case CXCursor_UnexposedStmt:                                    f(TCursor<CXCursor_UnexposedStmt>(c));                                    break;
+  case CXCursor_LabelStmt:                                        f(TCursor<CXCursor_LabelStmt>(c));                                        break;
+  case CXCursor_CompoundStmt:                                     f(TCursor<CXCursor_CompoundStmt>(c));                                     break;
+  case CXCursor_CaseStmt:                                         f(TCursor<CXCursor_CaseStmt>(c));                                         break;
+  case CXCursor_DefaultStmt:                                      f(TCursor<CXCursor_DefaultStmt>(c));                                      break;
+  case CXCursor_IfStmt:                                           f(TCursor<CXCursor_IfStmt>(c));                                           break;
+  case CXCursor_SwitchStmt:                                       f(TCursor<CXCursor_SwitchStmt>(c));                                       break;
+  case CXCursor_WhileStmt:                                        f(TCursor<CXCursor_WhileStmt>(c));                                        break;
+  case CXCursor_DoStmt:                                           f(TCursor<CXCursor_DoStmt>(c));                                           break;
+  case CXCursor_ForStmt:                                          f(TCursor<CXCursor_ForStmt>(c));                                          break;
+  case CXCursor_GotoStmt:                                         f(TCursor<CXCursor_GotoStmt>(c));                                         break;
+  case CXCursor_IndirectGotoStmt:                                 f(TCursor<CXCursor_IndirectGotoStmt>(c));                                 break;
+  case CXCursor_ContinueStmt:                                     f(TCursor<CXCursor_ContinueStmt>(c));                                     break;
+  case CXCursor_BreakStmt:                                        f(TCursor<CXCursor_BreakStmt>(c));                                        break;
+  case CXCursor_ReturnStmt:                                       f(TCursor<CXCursor_ReturnStmt>(c));                                       break;
+  case CXCursor_GCCAsmStmt:                                       f(TCursor<CXCursor_GCCAsmStmt>(c));                                       break;
+  case CXCursor_ObjCAtTryStmt:                                    f(TCursor<CXCursor_ObjCAtTryStmt>(c));                                    break;
+  case CXCursor_ObjCAtCatchStmt:                                  f(TCursor<CXCursor_ObjCAtCatchStmt>(c));                                  break;
+  case CXCursor_ObjCAtFinallyStmt:                                f(TCursor<CXCursor_ObjCAtFinallyStmt>(c));                                break;
+  case CXCursor_ObjCAtThrowStmt:                                  f(TCursor<CXCursor_ObjCAtThrowStmt>(c));                                  break;
+  case CXCursor_ObjCAtSynchronizedStmt:                           f(TCursor<CXCursor_ObjCAtSynchronizedStmt>(c));                           break;
+  case CXCursor_ObjCAutoreleasePoolStmt:                          f(TCursor<CXCursor_ObjCAutoreleasePoolStmt>(c));                          break;
+  case CXCursor_ObjCForCollectionStmt:                            f(TCursor<CXCursor_ObjCForCollectionStmt>(c));                            break;
+  case CXCursor_CXXCatchStmt:                                     f(TCursor<CXCursor_CXXCatchStmt>(c));                                     break;
+  case CXCursor_CXXTryStmt:                                       f(TCursor<CXCursor_CXXTryStmt>(c));                                       break;
+  case CXCursor_CXXForRangeStmt:                                  f(TCursor<CXCursor_CXXForRangeStmt>(c));                                  break;
+  case CXCursor_SEHTryStmt:                                       f(TCursor<CXCursor_SEHTryStmt>(c));                                       break;
+  case CXCursor_SEHExceptStmt:                                    f(TCursor<CXCursor_SEHExceptStmt>(c));                                    break;
+  case CXCursor_SEHFinallyStmt:                                   f(TCursor<CXCursor_SEHFinallyStmt>(c));                                   break;
+  case CXCursor_MSAsmStmt:                                        f(TCursor<CXCursor_MSAsmStmt>(c));                                        break;
+  case CXCursor_NullStmt:                                         f(TCursor<CXCursor_NullStmt>(c));                                         break;
+  case CXCursor_DeclStmt:                                         f(TCursor<CXCursor_DeclStmt>(c));                                         break;
+  case CXCursor_OMPParallelDirective:                             f(TCursor<CXCursor_OMPParallelDirective>(c));                             break;
+  case CXCursor_OMPSimdDirective:                                 f(TCursor<CXCursor_OMPSimdDirective>(c));                                 break;
+  case CXCursor_OMPForDirective:                                  f(TCursor<CXCursor_OMPForDirective>(c));                                  break;
+  case CXCursor_OMPSectionsDirective:                             f(TCursor<CXCursor_OMPSectionsDirective>(c));                             break;
+  case CXCursor_OMPSectionDirective:                              f(TCursor<CXCursor_OMPSectionDirective>(c));                              break;
+  case CXCursor_OMPSingleDirective:                               f(TCursor<CXCursor_OMPSingleDirective>(c));                               break;
+  case CXCursor_OMPParallelForDirective:                          f(TCursor<CXCursor_OMPParallelForDirective>(c));                          break;
+  case CXCursor_OMPParallelSectionsDirective:                     f(TCursor<CXCursor_OMPParallelSectionsDirective>(c));                     break;
+  case CXCursor_OMPTaskDirective:                                 f(TCursor<CXCursor_OMPTaskDirective>(c));                                 break;
+  case CXCursor_OMPMasterDirective:                               f(TCursor<CXCursor_OMPMasterDirective>(c));                               break;
+  case CXCursor_OMPCriticalDirective:                             f(TCursor<CXCursor_OMPCriticalDirective>(c));                             break;
+  case CXCursor_OMPTaskyieldDirective:                            f(TCursor<CXCursor_OMPTaskyieldDirective>(c));                            break;
+  case CXCursor_OMPBarrierDirective:                              f(TCursor<CXCursor_OMPBarrierDirective>(c));                              break;
+  case CXCursor_OMPTaskwaitDirective:                             f(TCursor<CXCursor_OMPTaskwaitDirective>(c));                             break;
+  case CXCursor_OMPFlushDirective:                                f(TCursor<CXCursor_OMPFlushDirective>(c));                                break;
+  case CXCursor_SEHLeaveStmt:                                     f(TCursor<CXCursor_SEHLeaveStmt>(c));                                     break;
+  case CXCursor_OMPOrderedDirective:                              f(TCursor<CXCursor_OMPOrderedDirective>(c));                              break;
+  case CXCursor_OMPAtomicDirective:                               f(TCursor<CXCursor_OMPAtomicDirective>(c));                               break;
+  case CXCursor_OMPForSimdDirective:                              f(TCursor<CXCursor_OMPForSimdDirective>(c));                              break;
+  case CXCursor_OMPParallelForSimdDirective:                      f(TCursor<CXCursor_OMPParallelForSimdDirective>(c));                      break;
+  case CXCursor_OMPTargetDirective:                               f(TCursor<CXCursor_OMPTargetDirective>(c));                               break;
+  case CXCursor_OMPTeamsDirective:                                f(TCursor<CXCursor_OMPTeamsDirective>(c));                                break;
+  case CXCursor_OMPTaskgroupDirective:                            f(TCursor<CXCursor_OMPTaskgroupDirective>(c));                            break;
+  case CXCursor_OMPCancellationPointDirective:                    f(TCursor<CXCursor_OMPCancellationPointDirective>(c));                    break;
+  case CXCursor_OMPCancelDirective:                               f(TCursor<CXCursor_OMPCancelDirective>(c));                               break;
+  case CXCursor_OMPTargetDataDirective:                           f(TCursor<CXCursor_OMPTargetDataDirective>(c));                           break;
+  case CXCursor_OMPTaskLoopDirective:                             f(TCursor<CXCursor_OMPTaskLoopDirective>(c));                             break;
+  case CXCursor_OMPTaskLoopSimdDirective:                         f(TCursor<CXCursor_OMPTaskLoopSimdDirective>(c));                         break;
+  case CXCursor_OMPDistributeDirective:                           f(TCursor<CXCursor_OMPDistributeDirective>(c));                           break;
+  case CXCursor_OMPTargetEnterDataDirective:                      f(TCursor<CXCursor_OMPTargetEnterDataDirective>(c));                      break;
+  case CXCursor_OMPTargetExitDataDirective:                       f(TCursor<CXCursor_OMPTargetExitDataDirective>(c));                       break;
+  case CXCursor_OMPTargetParallelDirective:                       f(TCursor<CXCursor_OMPTargetParallelDirective>(c));                       break;
+  case CXCursor_OMPTargetParallelForDirective:                    f(TCursor<CXCursor_OMPTargetParallelForDirective>(c));                    break;
+  case CXCursor_OMPTargetUpdateDirective:                         f(TCursor<CXCursor_OMPTargetUpdateDirective>(c));                         break;
+  case CXCursor_OMPDistributeParallelForDirective:                f(TCursor<CXCursor_OMPDistributeParallelForDirective>(c));                break;
+  case CXCursor_OMPDistributeParallelForSimdDirective:            f(TCursor<CXCursor_OMPDistributeParallelForSimdDirective>(c));            break;
+  case CXCursor_OMPDistributeSimdDirective:                       f(TCursor<CXCursor_OMPDistributeSimdDirective>(c));                       break;
+  case CXCursor_OMPTargetParallelForSimdDirective:                f(TCursor<CXCursor_OMPTargetParallelForSimdDirective>(c));                break;
+  case CXCursor_OMPTargetSimdDirective:                           f(TCursor<CXCursor_OMPTargetSimdDirective>(c));                           break;
+  case CXCursor_OMPTeamsDistributeDirective:                      f(TCursor<CXCursor_OMPTeamsDistributeDirective>(c));                      break;
+  case CXCursor_OMPTeamsDistributeSimdDirective:                  f(TCursor<CXCursor_OMPTeamsDistributeSimdDirective>(c));                  break;
+  case CXCursor_OMPTeamsDistributeParallelForSimdDirective:       f(TCursor<CXCursor_OMPTeamsDistributeParallelForSimdDirective>(c));       break;
+  case CXCursor_OMPTeamsDistributeParallelForDirective:           f(TCursor<CXCursor_OMPTeamsDistributeParallelForDirective>(c));           break;
+  case CXCursor_OMPTargetTeamsDirective:                          f(TCursor<CXCursor_OMPTargetTeamsDirective>(c));                          break;
+  case CXCursor_OMPTargetTeamsDistributeDirective:                f(TCursor<CXCursor_OMPTargetTeamsDistributeDirective>(c));                break;
+  case CXCursor_OMPTargetTeamsDistributeParallelForDirective:     f(TCursor<CXCursor_OMPTargetTeamsDistributeParallelForDirective>(c));     break;
+  case CXCursor_OMPTargetTeamsDistributeParallelForSimdDirective: f(TCursor<CXCursor_OMPTargetTeamsDistributeParallelForSimdDirective>(c)); break;
+  case CXCursor_OMPTargetTeamsDistributeSimdDirective:            f(TCursor<CXCursor_OMPTargetTeamsDistributeSimdDirective>(c));            break;
+  case CXCursor_TranslationUnit:                                  f(TCursor<CXCursor_TranslationUnit>(c));                                  break;
+  case CXCursor_UnexposedAttr:                                    f(TCursor<CXCursor_UnexposedAttr>(c));                                    break;
+  case CXCursor_IBActionAttr:                                     f(TCursor<CXCursor_IBActionAttr>(c));                                     break;
+  case CXCursor_IBOutletAttr:                                     f(TCursor<CXCursor_IBOutletAttr>(c));                                     break;
+  case CXCursor_IBOutletCollectionAttr:                           f(TCursor<CXCursor_IBOutletCollectionAttr>(c));                           break;
+  case CXCursor_CXXFinalAttr:                                     f(TCursor<CXCursor_CXXFinalAttr>(c));                                     break;
+  case CXCursor_CXXOverrideAttr:                                  f(TCursor<CXCursor_CXXOverrideAttr>(c));                                  break;
+  case CXCursor_AnnotateAttr:                                     f(TCursor<CXCursor_AnnotateAttr>(c));                                     break;
+  case CXCursor_AsmLabelAttr:                                     f(TCursor<CXCursor_AsmLabelAttr>(c));                                     break;
+  case CXCursor_PackedAttr:                                       f(TCursor<CXCursor_PackedAttr>(c));                                       break;
+  case CXCursor_PureAttr:                                         f(TCursor<CXCursor_PureAttr>(c));                                         break;
+  case CXCursor_ConstAttr:                                        f(TCursor<CXCursor_ConstAttr>(c));                                        break;
+  case CXCursor_NoDuplicateAttr:                                  f(TCursor<CXCursor_NoDuplicateAttr>(c));                                  break;
+  case CXCursor_CUDAConstantAttr:                                 f(TCursor<CXCursor_CUDAConstantAttr>(c));                                 break;
+  case CXCursor_CUDADeviceAttr:                                   f(TCursor<CXCursor_CUDADeviceAttr>(c));                                   break;
+  case CXCursor_CUDAGlobalAttr:                                   f(TCursor<CXCursor_CUDAGlobalAttr>(c));                                   break;
+  case CXCursor_CUDAHostAttr:                                     f(TCursor<CXCursor_CUDAHostAttr>(c));                                     break;
+  case CXCursor_CUDASharedAttr:                                   f(TCursor<CXCursor_CUDASharedAttr>(c));                                   break;
+  case CXCursor_VisibilityAttr:                                   f(TCursor<CXCursor_VisibilityAttr>(c));                                   break;
+  case CXCursor_DLLExport:                                        f(TCursor<CXCursor_DLLExport>(c));                                        break;
+  case CXCursor_DLLImport:                                        f(TCursor<CXCursor_DLLImport>(c));                                        break;
+  case CXCursor_PreprocessingDirective:                           f(TCursor<CXCursor_PreprocessingDirective>(c));                           break;
+  case CXCursor_MacroDefinition:                                  f(TCursor<CXCursor_MacroDefinition>(c));                                  break;
+  case CXCursor_MacroExpansion:                                   f(TCursor<CXCursor_MacroExpansion>(c));                                   break;
+  case CXCursor_InclusionDirective:                               f(TCursor<CXCursor_InclusionDirective>(c));                               break;
+  case CXCursor_ModuleImportDecl:                                 f(TCursor<CXCursor_ModuleImportDecl>(c));                                 break;
+  case CXCursor_TypeAliasTemplateDecl:                            f(TCursor<CXCursor_TypeAliasTemplateDecl>(c));                            break;
+  case CXCursor_StaticAssert:                                     f(TCursor<CXCursor_StaticAssert>(c));                                     break;
+  case CXCursor_FriendDecl:                                       f(TCursor<CXCursor_FriendDecl>(c));                                       break;
+  case CXCursor_OverloadCandidate:                                f(TCursor<CXCursor_OverloadCandidate>(c));                                break;
+  default: f(c); break;
+  }
+}
 
 /*!
  * \endnamespace
