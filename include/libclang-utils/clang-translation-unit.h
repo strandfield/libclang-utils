@@ -53,6 +53,9 @@ public:
 
   CXSaveError saveTranslationUnit(const std::string& filename, unsigned options = CXSaveTranslationUnit_None) const;
 
+  void suspendTranslationUnit();
+  CXErrorCode reparseTranslationUnit();
+
   Cursor getCursor() const;
 
   TokenSet tokenize(CXSourceRange range) const;

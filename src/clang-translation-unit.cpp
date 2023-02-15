@@ -63,6 +63,28 @@ CXSaveError TranslationUnit::saveTranslationUnit(const std::string& filename, un
 }
 
 /*!
+ * \fn void suspendTranslationUnit()
+ * \brief suspends a translation unit
+ * 
+ * Use \m reparseTranslationUnit() to resume the translation unit.
+ */
+void TranslationUnit::suspendTranslationUnit()
+{
+  api->clang_suspendTranslationUnit(*this);
+}
+
+/*!
+ * \fn CXErrorCode reparseTranslationUnit()
+ * \brief reparse a translation unit
+ */
+CXErrorCode TranslationUnit::reparseTranslationUnit()
+{
+  unsigned options = api->clang_defaultReparseOptions(*this);
+  int err = api->clang_reparseTranslationUnit(*this, 0, nullptr, options);
+  return static_cast<CXErrorCode>(err);
+}
+
+/*!
  * \fn TokenSet tokenize(CXSourceRange range) const
  */
 TokenSet TranslationUnit::tokenize(CXSourceRange range) const
