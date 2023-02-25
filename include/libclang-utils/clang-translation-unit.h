@@ -17,6 +17,7 @@ namespace libclang
 class Cursor;
 class TokenSet;
 class File;
+class SourceLocation;
 
 /*!
  * \class TranslationUnit
@@ -57,11 +58,13 @@ public:
   CXErrorCode reparseTranslationUnit();
 
   Cursor getCursor() const;
+  Cursor getCursor(const SourceLocation& loc) const;
 
   TokenSet tokenize(CXSourceRange range) const;
 
   File getFile(const char* path) const;
   File getFile(const std::string& path) const;
+  SourceLocation getLocation(const File& file, int line, int column) const;
 
   operator CXTranslationUnit() const;
 };

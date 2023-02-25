@@ -20,6 +20,7 @@ class Library;
 namespace libclang
 {
 
+class Cursor;
 class Index;
 
 class LibClangError : public std::runtime_error
@@ -339,6 +340,8 @@ public:
 public:
 
   Index createIndex();
+
+  Cursor getNullCursor();
 
   /* libclang helpers */
   

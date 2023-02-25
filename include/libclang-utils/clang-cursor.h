@@ -54,6 +54,8 @@ public:
 
   Cursor(LibClang& lib, CXCursor c);
 
+  bool isNull() const;
+
   CXCursorKind kind() const;
 
   bool isDeclaration() const;
@@ -69,6 +71,7 @@ public:
   std::string getCursorKindSpelling() const;
   std::string getUSR() const;
   std::string getMangling() const;
+  std::string getDisplayName() const;
 
   Cursor getLexicalParent() const;
   Cursor getSemanticParent() const;
@@ -120,6 +123,15 @@ inline Cursor::Cursor(LibClang& lib, CXCursor c)
   : api(&lib), cursor(c)
 {
 
+}
+
+/*!
+ * \fn bool isNull() const
+ * \brief returns whether this cursor is the null cursor
+ */
+inline bool Cursor::isNull() const
+{
+  return api->clang_Cursor_isNull(this->cursor);
 }
 
 /*!
@@ -233,6 +245,14 @@ inline std::string Cursor::getMangling() const
   std::string result = api->clang_getCString(str);
   api->clang_disposeString(str);
   return result;
+}
+
+/*!
+ * \fn std::string Cursor::getDisplayName() const
+ */
+inline std::string Cursor::getDisplayName() const
+{
+  return api->toStdString(api->clang_getCursorDisplayName(this->cursor));
 }
 
 /*!

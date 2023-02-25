@@ -6,6 +6,7 @@
 
 #include "libclang-utils/clang-cursor.h"
 #include "libclang-utils/clang-file.h"
+#include "libclang-utils/clang-source-location.h"
 #include "libclang-utils/clang-token.h"
 
 /*!
@@ -49,6 +50,15 @@ TranslationUnit& TranslationUnit::operator=(TranslationUnit&& other)
 Cursor TranslationUnit::getCursor() const
 {
   CXCursor c = api->clang_getTranslationUnitCursor(this->translation_unit);
+  return Cursor{ *api, c };
+}
+
+/*!
+ * \fn Cursor getCursor(const SourceLocation& loc) const
+ */
+Cursor TranslationUnit::getCursor(const SourceLocation& loc) const
+{
+  CXCursor c = api->clang_getCursor(this->translation_unit, loc);
   return Cursor{ *api, c };
 }
 
@@ -109,6 +119,14 @@ File TranslationUnit::getFile(const char* path) const
 File TranslationUnit::getFile(const std::string& path) const
 {
   return File(*api, api->clang_getFile(*this, path.c_str()));
+}
+
+/*!
+ * \fn SourceLocation getLocation(const File& file, int line, int column) const
+ */
+SourceLocation TranslationUnit::getLocation(const File& file, int line, int column) const
+{
+  return SourceLocation(*api, api->clang_getLocation(*this, file, line, column));
 }
 
 /*!

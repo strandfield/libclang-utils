@@ -6,6 +6,7 @@
 
 #include "dynlib/dynlib.h"
 
+#include "libclang-utils/clang-cursor.h"
 #include "libclang-utils/clang-index.h"
 
 /*!
@@ -425,6 +426,15 @@ const std::string& LibClang::printableVersion() const
 Index LibClang::createIndex()
 {
   return Index{ *this };
+}
+
+/*!
+ * \fn Cursor getNullCursor()
+ * \brief returns the null cursor
+ */
+Cursor LibClang::getNullCursor()
+{
+  return Cursor(*this, clang_getNullCursor());
 }
 
 /*!
