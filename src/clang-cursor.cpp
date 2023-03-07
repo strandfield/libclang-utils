@@ -4,6 +4,8 @@
 
 #include "libclang-utils/clang-cursor.h"
 
+#include "libclang-utils/clang-file.h"
+
 /*!
  * \namespace libclang
  */
@@ -15,7 +17,17 @@ namespace libclang
  * \class Cursor
  */
 
+
 /*!
+ * \fn File getIncludedFile() const
+ * \brief returns the included file of a file inclusion cursor
+ */
+File Cursor::getIncludedFile() const
+{
+  return File(*api, api->clang_getIncludedFile(*this));
+}
+
+ /*!
  * \fn size_t childCount() const
  * \brief returns the number of children of this cursor
  */

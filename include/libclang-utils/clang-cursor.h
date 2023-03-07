@@ -21,6 +21,8 @@
 namespace libclang
 {
 
+class File;
+
 /*!
  * \class Cursor
  * \brief provides an interface to access a translation unit ast
@@ -80,6 +82,8 @@ public:
   Cursor getDefinition() const;
 
   Cursor getCanonical() const;
+
+  File getIncludedFile() const;
 
   Type getType() const;
   Type getTypedefDeclUnderlyingType() const;
