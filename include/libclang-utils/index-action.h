@@ -101,6 +101,11 @@ public:
     return r;
   }
 
+  const CXIdxCXXClassDeclInfo* getCXXClassDeclInfo(const CXIdxDeclInfo* info) const
+  {
+    return libclangAPI().clang_index_getCXXClassDeclInfo(info);
+  }
+
   /*
    * The API expected by libclang
    */
