@@ -21,6 +21,7 @@ namespace libclang
 {
 
 class Cursor;
+class File;
 class Index;
 
 class LibClangError : public std::runtime_error
@@ -356,6 +357,9 @@ public:
 
   CXVersion version() const;
   const std::string& printableVersion() const;
+
+  Cursor cursor(CXCursor c);
+  File file(CXFile f);
 
   LibClang& operator=(const LibClang&) = default;
 };

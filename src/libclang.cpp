@@ -419,6 +419,23 @@ const std::string& LibClang::printableVersion() const
   return m_printable_version;
 }
 
+/**
+ * \brief returns a Cursor object constructed from a CXCursor
+ */
+Cursor LibClang::cursor(CXCursor c)
+{
+  return Cursor(*this, c);
+}
+
+/*!
+ * \fn File file(CXFile f)
+ * \brief returns a File object constructed from a CXFile
+ */
+File LibClang::file(CXFile f)
+{
+  return File(*this, f);
+}
+
 /*!
  * \fn Index createIndex()
  * \brief create an index
