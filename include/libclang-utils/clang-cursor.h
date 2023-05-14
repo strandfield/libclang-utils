@@ -112,6 +112,7 @@ public:
   size_t childCount() const;
   Cursor childAt(size_t index) const;
   std::vector<Cursor> children() const;
+  int indexOfChild(const Cursor& c) const;
 
   template<typename Func>
   void visitChildren(Func&& f) const;

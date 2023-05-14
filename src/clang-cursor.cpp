@@ -77,6 +77,31 @@ std::vector<Cursor> Cursor::children() const
   return result;
 }
 
+/**
+ * \brief returns the index of a child
+ * \param c  the child cursor
+ * \return the index or -1 if the cursor isn't a direct child
+ */
+int Cursor::indexOfChild(const Cursor& c) const
+{
+  bool found = false;
+  int index = 0;
+
+  visitChildren([&c, &index, &found](bool& stop_token, const Cursor& child) {
+    if (c == child)
+    {
+      found = true;
+      stop_token = true;
+    }
+    else
+    {
+      ++index;
+    }
+    });
+
+  return found ? index : -1;
+}
+
 /*!
  * \endclass
  */
