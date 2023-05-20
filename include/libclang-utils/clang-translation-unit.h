@@ -57,6 +57,8 @@ public:
   void suspendTranslationUnit();
   CXErrorCode reparseTranslationUnit();
 
+  std::string getTranslationUnitSpelling() const;
+
   Cursor getCursor() const;
   Cursor getCursor(const SourceLocation& loc) const;
 
@@ -65,6 +67,9 @@ public:
   File getFile(const char* path) const;
   File getFile(const std::string& path) const;
   SourceLocation getLocation(const File& file, int line, int column) const;
+
+  bool isFileMultipleIncludeGuarded(const File& f) const;
+  const char* getFileContents(const File& f, size_t* bufsize = nullptr) const;
 
   operator CXTranslationUnit() const;
 };

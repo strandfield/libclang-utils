@@ -44,6 +44,14 @@ TranslationUnit& TranslationUnit::operator=(TranslationUnit&& other)
   return *(this);
 }
 
+/**
+ * \brief returns the original translation unit source file name
+ */
+std::string TranslationUnit::getTranslationUnitSpelling() const
+{
+  return api->toStdString(api->clang_getTranslationUnitSpelling(*this));
+}
+
 /*!
  * \fn Cursor getCursor() const
  */
@@ -127,6 +135,25 @@ File TranslationUnit::getFile(const std::string& path) const
 SourceLocation TranslationUnit::getLocation(const File& file, int line, int column) const
 {
   return SourceLocation(*api, api->clang_getLocation(*this, file, line, column));
+}
+
+/**
+ * \brief returns whether a file protects against multiple inclusions
+ */
+bool TranslationUnit::isFileMultipleIncludeGuarded(const File& f) const
+{
+  return api->clang_isFileMultipleIncludeGuarded(*this, f);
+}
+
+/**
+ * \brief retrieve the buffer associated with the given file
+ * \param      f        the file
+ * \param[out] bufsize  receives the size of the buffer, if not null
+ * \return a pointer to the buffer
+ */
+const char* TranslationUnit::getFileContents(const File& f, size_t* bufsize) const
+{
+  return api->clang_getFileContents(*this, f, bufsize);
 }
 
 /*!
