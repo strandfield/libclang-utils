@@ -102,15 +102,34 @@ CXErrorCode TranslationUnit::reparseTranslationUnit()
   return static_cast<CXErrorCode>(err);
 }
 
+/**
+ * \brief get the raw lexical token starting with the given location
+ */
+Token TranslationUnit::getToken(const SourceLocation& loc) const
+{
+  CXToken* token = api->clang_getToken(*this, loc);
+  return Token(*api, *this, *token);
+}
+
 /*!
  * \fn TokenSet tokenize(CXSourceRange range) const
  */
 TokenSet TranslationUnit::tokenize(CXSourceRange range) const
 {
+  return tokenize(SourceRange(*api, range));
+}
+
+/**
+ * \brief tokenize the source code described by the given range into raw lexical tokens
+ * 
+ * Exposes clang_tokenize().
+ */
+TokenSet TranslationUnit::tokenize(const SourceRange& range) const
+{
   CXToken* tokens = nullptr;
   unsigned int size = 0;
   api->clang_tokenize(translation_unit, range, &tokens, &size);
-  return TokenSet{ *api, translation_unit, tokens, size };
+  return TokenSet(*api, translation_unit, tokens, size);
 }
 
 /*!

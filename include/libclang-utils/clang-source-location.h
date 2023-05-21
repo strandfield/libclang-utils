@@ -105,6 +105,46 @@ inline SpellingLocation SourceLocation::getSpellingLocation() const
  * \endclass
  */
 
+/**
+ * \brief retrieve a NULL (invalid) source location
+ * 
+ * Exposes clang_getNullLocation().
+ */
+inline SourceLocation nullLocation(LibClang& api)
+{
+  return SourceLocation(api, api.clang_getNullLocation());
+}
+
+/**
+ * \brief determine whether two source locations refer to exactly the same point in the source code
+ * 
+ * Exposes clang_equalLocations().
+ */
+inline bool operator==(const SourceLocation& lhs, const SourceLocation& rhs)
+{
+  return lhs.api->clang_equalLocations(lhs, rhs);
+}
+
+/**
+ * \brief returns whether a location is in a system header
+ * 
+ * Exposes clang_Location_isInSystemHeader().
+ */
+inline bool isInSystemHeader(const SourceLocation& loc)
+{
+  return loc.api->clang_Location_isInSystemHeader(loc);
+}
+
+/**
+ * \brief returns whether a location is in the main file of the corresponding translation unit
+ * 
+ * Exposes clang_Location_isFromMainFile().
+ */
+inline bool isFromMainFile(const SourceLocation& loc)
+{
+  return loc.api->clang_Location_isFromMainFile(loc);
+}
+
 /*!
  * \endnamespace
  */

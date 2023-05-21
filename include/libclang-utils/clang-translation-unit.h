@@ -15,9 +15,11 @@ namespace libclang
 {
 
 class Cursor;
+class Token;
 class TokenSet;
 class File;
 class SourceLocation;
+class SourceRange;
 
 /*!
  * \class TranslationUnit
@@ -62,7 +64,9 @@ public:
   Cursor getCursor() const;
   Cursor getCursor(const SourceLocation& loc) const;
 
-  TokenSet tokenize(CXSourceRange range) const;
+  Token getToken(const SourceLocation& loc) const;
+  [[deprecated("use SourceRange overload")]] TokenSet tokenize(CXSourceRange range) const;
+  TokenSet tokenize(const SourceRange& range) const;
 
   File getFile(const char* path) const;
   File getFile(const std::string& path) const;

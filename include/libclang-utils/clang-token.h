@@ -13,6 +13,8 @@
 namespace libclang
 {
 
+LIBCLANGU_API const std::string& getSpelling(CXTokenKind k);
+
 class LIBCLANGU_API Token
 {
 public:
@@ -20,45 +22,43 @@ public:
   CXTranslationUnit translation_unit;
   CXToken token;
 
-  Token(LibClang& lib, CXTranslationUnit tu, CXToken tok)
-    : api(&lib), translation_unit(tu), token(tok)
-  {
-
-  }
-
+public:
+  Token() = delete;
   Token(const Token&) = default;
-
-  ~Token()
-  {
-
-  }
-
+  ~Token() = default;
   Token& operator=(const Token&) = default;
 
-  operator const CXToken&() const
-  {
-    return this->token;
-  }
+  Token(LibClang& lib, CXTranslationUnit tu, CXToken tok);
 
-  CXTokenKind getKind() const
-  {
-    //@TODO: make inline out of class
-    return api->clang_getTokenKind(*this);
-  }
+  operator const CXToken& () const;
 
-  std::string getSpelling() const
-  {
-    CXString str = api->clang_getTokenSpelling(this->translation_unit, this->token);
-    std::string result = api->clang_getCString(str);
-    api->clang_disposeString(str);
-    return result;
-  }
+  CXTokenKind getKind() const;
+  const std::string& getKindSpelling() const;
 
-  SourceRange getExtent() const
-  {
-    return SourceRange(*api, api->clang_getTokenExtent(this->translation_unit, this->token));
-  }
+  std::string getSpelling() const;
+
+  SourceLocation getLocation() const;
+  SourceRange getExtent() const;
 };
+
+inline Token::Token(LibClang& lib, CXTranslationUnit tu, CXToken tok)
+  : api(&lib), translation_unit(tu), token(tok)
+{
+
+}
+
+inline Token::operator const CXToken& () const
+{
+  return this->token;
+}
+
+/**
+ * \brief determine the kind of the token
+ */
+inline CXTokenKind Token::getKind() const
+{
+  return api->clang_getTokenKind(*this);
+}
 
 class LIBCLANGU_API TokenSet
 {
@@ -71,64 +71,96 @@ protected:
   size_t m_size;
 
 public:
-  TokenSet()
-    : api(nullptr), translation_unit(nullptr), tokens(nullptr), m_size(0)
-  {
-
-  }
-
-  TokenSet(LibClang& lib, CXTranslationUnit tu, CXToken* toks, size_t size)
-    : api(&lib), translation_unit(tu), tokens(toks), m_size(size)
-  {
-
-  }
-
+  TokenSet();
+  TokenSet(LibClang& lib, CXTranslationUnit tu, CXToken* toks, size_t size);
   TokenSet(const TokenSet&) = delete;
-
-  TokenSet(TokenSet&& other) noexcept
-    : api(other.api), translation_unit(other.translation_unit), tokens(other.tokens), m_size(other.m_size)
-  {
-    other.api = nullptr;
-    other.tokens = nullptr;
-    other.m_size = 0;
-  }
-
-  ~TokenSet()
-  {
-    if (api && m_size)
-    {
-      api->clang_disposeTokens(translation_unit, tokens, static_cast<unsigned>(m_size));
-    }
-  }
+  TokenSet(TokenSet&& other) noexcept;
+  ~TokenSet();
 
   TokenSet& operator=(const TokenSet&) = delete;
+  TokenSet& operator=(TokenSet&& other) noexcept;
 
-  TokenSet& operator=(TokenSet&& other) noexcept
-  {
+  CXToken* data() const;
 
-    api = other.api;
-    tokens = other.tokens;
-    m_size = other.m_size;
-
-    other.api = nullptr;
-    other.tokens = nullptr;
-    other.m_size = 0;
-
-    return *this;
-  }
-
-  size_t size() const
-  {
-    return m_size;
-  }
-
-  Token at(size_t i) const
-  {
-    return Token{ *api, translation_unit, this->tokens[i] };
-  }
+  bool empty() const;
+  size_t size() const;
+  Token at(size_t i) const;
 
   std::string getSpelling() const;
 };
+
+/**
+ * \brief constructs an empty token set
+ */
+inline TokenSet::TokenSet()
+  : api(nullptr), translation_unit(nullptr), tokens(nullptr), m_size(0)
+{
+
+}
+
+inline TokenSet::TokenSet(LibClang& lib, CXTranslationUnit tu, CXToken* toks, size_t size)
+  : api(&lib), translation_unit(tu), tokens(toks), m_size(size)
+{
+
+}
+
+inline TokenSet::TokenSet(TokenSet&& other) noexcept
+  : api(other.api), translation_unit(other.translation_unit), tokens(other.tokens), m_size(other.m_size)
+{
+  other.api = nullptr;
+  other.tokens = nullptr;
+  other.m_size = 0;
+}
+
+inline TokenSet::~TokenSet()
+{
+  if (api && m_size)
+  {
+    api->clang_disposeTokens(translation_unit, tokens, static_cast<unsigned>(m_size));
+  }
+}
+
+inline TokenSet& TokenSet::operator=(TokenSet&& other) noexcept
+{
+  api = other.api;
+  tokens = other.tokens;
+  m_size = other.m_size;
+
+  other.api = nullptr;
+  other.tokens = nullptr;
+  other.m_size = 0;
+
+  return *this;
+}
+
+inline CXToken* TokenSet::data() const
+{
+  return tokens;
+}
+
+/**
+ * \brief returns whether the set is empty
+ */
+inline bool TokenSet::empty() const
+{
+  return size() == 0;
+}
+
+/**
+ * \brief returns the number of token in the set
+ */
+inline size_t TokenSet::size() const
+{
+  return m_size;
+}
+
+/**
+ * \brief retrieves a token from the set
+ */
+inline Token TokenSet::at(size_t i) const
+{
+  return Token(*api, translation_unit, this->tokens[i]);
+}
 
 } // namespace libclang
 

@@ -104,6 +104,36 @@ inline SourceLocation SourceRange::getRangeEnd() const
  * \endclass
  */
 
+/**
+ * \brief determine whether two ranges are equivalent
+ * 
+ * Exposes clang_equalRanges().
+ */
+inline bool operator==(const SourceRange& lhs, const SourceRange& rhs)
+{
+  return lhs.api->clang_equalRanges(lhs, rhs);
+}
+
+/**
+ * \brief retrieve a NULL (invalid) source range
+ *
+ * Exposes clang_getNullRange().
+ */
+inline SourceRange nullRange(LibClang& api)
+{
+  return SourceRange(api, api.clang_getNullRange());
+}
+
+/**
+ * \brief retrieve a source range given the beginning and ending source locations
+ * 
+ * Exposes clang_getRange().
+ */
+inline SourceRange getRange(const SourceLocation& begin, const SourceLocation& end)
+{
+  return SourceRange(*begin.api, begin.api->clang_getRange(begin, end));
+}
+
 /*!
  * \endnamespace
  */
